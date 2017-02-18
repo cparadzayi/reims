@@ -5,8 +5,11 @@ var options = {
   promiseLib: promise
 };
 
+var port = process.en.port
+var localConnectionString = 'postgres://postgres:admin@localhost:5432/reimsdb'
+var herokuConnectionString = 'postgres://sxypinnkolkfxz:b6b60242418e2d42df4e3d6acac9c68636eac5f0b1b95e572133c3e532026689@ec2-50-17-220-223.compute-1.amazonaws.com:5432/dtmf5pma62kh2'
 var pgp = require('pg-promise')(options);
-var connectionString = 'postgres://postgres:admin@localhost:5432/reimsdb';
+var connectionString = port == 5000 ? localConnectionString: herokuConnectionString;
 var db = pgp(connectionString);
 
 // add query functions

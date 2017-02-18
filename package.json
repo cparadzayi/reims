@@ -16,6 +16,7 @@
     "morgan": "~1.7.0",
     "node": "0.0.0",
     "nodejs": "0.0.0",
+    "pg": "^6.1.2",
     "pg-promise": "^5.5.6",
     "serve-favicon": "~2.3.2"
   }
