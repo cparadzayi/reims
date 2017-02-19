@@ -8,14 +8,15 @@ var options = {
 var pgp = require('pg-promise')(options);
 
 // move the two database connection options into the aoo,js and set development and production environments respectiveky
-var connectionString = 'postgres://postgres:admin@localhost:5432/reimsdb'
-// var connectionString = port == 3000? 'postgres://postgres:admin@localhost:5432/reimsdb': process.env.DATABASE_URL
+//var connectionString = 'postgres://postgres:admin@localhost:5432/reimsdb'
+var connectionString = process.env.DATABASE_URL || 'postgres://postgres:admin@localhost:5432/reimsdb'
 var db = pgp(connectionString);
 
-// connecting to Heroku postgresql database
+/* connecting to Heroku postgresql database
+var pg = require('pg').native;
 var herokuconnectionString = 'postgres://gztwokgbqbqqnm:259213bfe9057460f3a31f8f550890ed782f2899a85edb6a0a35b35c9c1b83fe@ec2-54-243-214-198.compute-1.amazonaws.com:5432/dv2k3bi29i3q1';
-var db = pgp(herokuconnectionString);
-
+var db = pg(herokuconnectionString);
+*/
 // add query functions
 function getAllAccounts(req, res, next) {
   db.any('select * from accounts')

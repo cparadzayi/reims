@@ -33,6 +33,8 @@ server.on('listening', onListening);
 
 console.log('SUCCESSFULLY loaded REIMS. Open any web browser (we recommend google chrome) and visit http://localhost://3000'+"\n\nDO NOT CLOSE THIS WINDOW. REIMS will also exit.");
 
+console.log("REIMS is running on port " + port);
+
 /**
  * Normalize a port into a number, string, or false.
  */
