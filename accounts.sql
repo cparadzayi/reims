@@ -2,7 +2,7 @@ DROP DATABASE IF EXISTS reimsdb;
 CREATE DATABASE reimsdb;
 
 
-CREATE TABLE accounts (
+CREATE TABLE clients (
   ID SERIAL PRIMARY KEY,
   name VARCHAR,
   surname VARCHAR,
@@ -10,5 +10,5 @@ CREATE TABLE accounts (
   townshipid INTEGER
 );
 
-INSERT INTO accounts (name, surname, accountnum, townshipid)
+INSERT INTO clients (name, surname, accountnum, townshipid)
   VALUES ('Charles', 'Paradzayi', '01-0000345-00', 1);

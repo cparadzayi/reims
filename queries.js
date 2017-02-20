@@ -18,14 +18,14 @@ var herokuconnectionString = 'postgres://gztwokgbqbqqnm:259213bfe9057460f3a31f8f
 var db = pg(herokuconnectionString);
 */
 // add query functions
-function getAllAccounts(req, res, next) {
-  db.any('select * from accounts')
+function getAllclients(req, res, next) {
+  db.any('select * from clients')
     .then(function (data) {
       res.status(200)
         .json({
           status: 'success',
           data: data,
-          messaccountnum: 'Retrieved ALL accounts'
+          messaccountnum: 'Retrieved ALL clients'
         });
     })
     .catch(function (err) {
@@ -35,7 +35,7 @@ function getAllAccounts(req, res, next) {
 
 function getSingleAccount(req, res, next) {
   var accountID = parseInt(req.params.id);
-  db.one('select * from accounts where id = $1', accountID)
+  db.one('select * from clients where id = $1', accountID)
     .then(function (data) {
       res.status(200)
         .json({
@@ -51,7 +51,7 @@ function getSingleAccount(req, res, next) {
 
 function createAccount(req, res, next) {
   req.body.townshipid = parseInt(req.body.townshipid);
-  db.none('insert into accounts(name, surname, accountnum, townshipid)' +
+  db.none('insert into clients(name, surname, accountnum, townshipid)' +
       'values(${name}, ${surname}, ${accountnum}, ${townshipid})',
     req.body)
     .then(function () {
@@ -67,7 +67,7 @@ function createAccount(req, res, next) {
 }
 
 function updateAccount(req, res, next) {
-  db.none('update accounts set name=$1, surname=$2, accountnum=$3, townshipid=$4 where id=$5',
+  db.none('update clients set name=$1, surname=$2, accountnum=$3, townshipid=$4 where id=$5',
     [req.body.name, req.body.surname, parseInt(req.body.townshipid),
       req.body.accountnum, parseInt(req.params.id)])
     .then(function () {
@@ -84,7 +84,7 @@ function updateAccount(req, res, next) {
 
 function removeAccount(req, res, next) {
   var accountID = parseInt(req.params.id);
-  db.result('delete from accounts where id = $1', accountID)
+  db.result('delete from clients where id = $1', accountID)
     .then(function (result) {
       /* jshint ignore:start */
       res.status(200)
@@ -100,7 +100,7 @@ function removeAccount(req, res, next) {
 }
 
 module.exports = {
-  getAllAccounts: getAllAccounts,
+  getAllclients: getAllclients,
   getSingleAccount: getSingleAccount,
   createAccount: createAccount,
   updateAccount: updateAccount,

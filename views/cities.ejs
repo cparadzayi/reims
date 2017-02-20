@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <% include ../partials/head %>
+</head>
+
+<head>
+
+
+
+<body>
+  <header>
+      <% include ../partials/header %>
+  </header>
+  <main>
+    <div class="row">
+      <div class="col-sm-8">
+        <div class="jumbotron">
+          <div id='map'></div>
+
+        </div>
+
+      </div>
+
+      <div class="col-sm-4">
+
+          <div class="well">
+              <h3>Business Analytics Sidebar</h3>
+          </div>
+
+      </div>
+
+    </div>
+  </main>
+
+
+<footer>
+  <% include ../partials/footer %>
+</footer>
+
+<script>
+  mapboxgl.accessToken = 'pk.eyJ1IjoiY3BhcmFkemF5aSIsImEiOiJjaW9lbnhqa3UwMDNndnBqN2ZwaDRvYjQ1In0.0iXnCQ1SnwtgB9wGh77pew';
+
+  var bounds = [[30.00, -18.22],
+              [30.26, -18.03]];
+// do the map stuff here
+var map = new mapboxgl.Map({
+    container: 'map',
+    style: 'mapbox://styles/mapbox/streets-v9',
+    center: [30.13, -18.125],
+    maxBounds: bounds,
+    zoom: 9,
+    attributionControl: false
+});
+
+
+  map.on('load', function() {
+
+      // Add our vector tile source: World wide
+      // airports provided by Natural Earth
+      map.addSource('cities', {
+          "type": "geojson",
+          "data": "/geojson/cities_geom.geojson" // thi sas to be a vector data
+      });
+
+      map.addLayer({
+        "id": "city",
+        "type": "fill",
+        "source": "cities",
+        // "source-layer": "ne_10m_airports",
+        //"type": "symbol",
+        /*  "layout": {
+          "icon-image": "airport-15",
+          "icon-padding": 0,
+          "icon-allow-overlap":true
+        }
+        */
+        'layout': {},
+        'paint': {
+          'fill-color': '#088',
+          'fill-opacity': 0.8
+        }
+      });
+  });
+
+</script>
+
+</body>
+</html>

@@ -18,6 +18,9 @@
                 <div class="jumbotron">
                     <h1><%- title %></h1>
                     <p>Welcome to REIMS App</p>
+                    <div class="citymap" id="map">
+
+                    </div>
                 </div>
 
             </div>
@@ -36,4 +39,18 @@
     </footer>
 
 </body>
+<script type="text/javascript">
+mapboxgl.accessToken = 'pk.eyJ1IjoiY3BhcmFkemF5aSIsImEiOiJjaW9lbnhqa3UwMDNndnBqN2ZwaDRvYjQ1In0.0iXnCQ1SnwtgB9wGh77pew';
+
+// do the map stuff here
+var map = new mapboxgl.Map({
+  container: 'map',
+  // style: 'mapbox://styles/mapbox/streets-v9',
+style: 'http://osm-liberty.lukasmartinelli.ch/osm-liberty.json',
+  center: [29.798011779785156, -19.45113496179399],
+  zoom: 6,
+  attributionControl: false
+});
+
+</script>
 </html>

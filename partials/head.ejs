@@ -5,8 +5,16 @@ https://scotch.io/tutorials/use-ejs-to-template-your-node-application
 <meta charset="UTF-8">
 <title>Real Estate Information Management System 2017</title>
 
+<meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
+<script src='https://api.tiles.mapbox.com/mapbox-gl-js/v0.32.1/mapbox-gl.js'></script>
+<link href='https://api.tiles.mapbox.com/mapbox-gl-js/v0.32.1/mapbox-gl.css' rel='stylesheet' />
+
 <!-- CSS (load bootstrap from a CDN) -->
 <!-- Latest compiled and minified CSS -->
+
+<script src="https://code.jquery.com/jquery-3.1.1.min.js" integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=" crossorigin="anonymous"></script>
+
+
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
 
 <!-- Optional theme -->
@@ -15,6 +23,23 @@ https://scotch.io/tutorials/use-ejs-to-template-your-node-application
 <!-- Latest compiled and minified JavaScript -->
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
 
+
 <style>
-    body    { padding-top:50px; }
-</style>
+
+
+    body {
+       margin:0;
+      padding: 50px;
+      font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+    }
+
+    a {
+      color: #00B7FF;
+    }
+
+
+        #map {
+          position:absolute; top:0; bottom:0; height:450px; width:100%;
+        }
+
+    </style>

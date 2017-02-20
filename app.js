@@ -50,4 +50,8 @@ app.get('/about', function (req, res) {
     res.render('about');
 });
 
+app.get('/cities', function (req, res) {
+    res.render('cities');
+});
+
 module.exports = app;
