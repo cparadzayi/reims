@@ -2,7 +2,7 @@
   "name": "reims",
   "version": "0.0.0",
   "private": true,
-  "engines":{
+  "engines": {
     "node": "5.9.1"
   },
   "main": "./bin/www",
@@ -10,12 +10,16 @@
     "start": "node ./bin/www"
   },
   "dependencies": {
+    "async": "^2.1.5",
+    "axios": "^0.15.3",
     "bluebird": "^3.4.7",
     "body-parser": "~1.16.0",
     "cookie-parser": "~1.4.3",
+    "dbgeo": "^1.0.1",
     "debug": "~2.6.0",
     "ejs": "^2.5.5",
     "express": "~4.14.1",
+    "geojson": "^0.4.1",
     "jade": "~1.11.0",
     "morgan": "~1.7.0",
     "node": "0.0.0",

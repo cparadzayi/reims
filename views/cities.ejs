@@ -3,6 +3,8 @@
 
 <head>
     <% include ../partials/head %>
+    <script type="text/javascript" src="javascripts/geojson.min.js"></script>
+
 </head>
 
 <head>
@@ -39,21 +41,43 @@
   <% include ../partials/footer %>
 </footer>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.15.3/axios.min.js"></script>
 <script>
+
+  var mapCadastralData = {};
+  var mapCitiesData = {};
+
+  function getMapCitiesData () {
+    return axios.get('/api/cities')
+  }
+  function getCadastralData () {
+    return axios.get('/api/cadastre')
+  }
+
+  axios.all([getMapCitiesData(),getCadastralData()])
+  .then(axios.spread(function(cities,cadastre){
+    mapCitiesData = cities.data.data[0]
+    mapCadastralData = cadastre.data.data[0]
+  }))
+  .catch(function (err){
+    console.log(err)
+  })
+
   mapboxgl.accessToken = 'pk.eyJ1IjoiY3BhcmFkemF5aSIsImEiOiJjaW9lbnhqa3UwMDNndnBqN2ZwaDRvYjQ1In0.0iXnCQ1SnwtgB9wGh77pew';
 
   var bounds = [[30.00, -18.22],
               [30.26, -18.03]];
-// do the map stuff here
-var map = new mapboxgl.Map({
-    container: 'map',
-    style: 'mapbox://styles/mapbox/streets-v9',
-    center: [30.13, -18.125],
-    maxBounds: bounds,
-    zoom: 9,
-    attributionControl: false
-});
+  // do the map stuff here
+  var map = new mapboxgl.Map({
+      container: 'map',
+      style: 'mapbox://styles/mapbox/streets-v9',
+      center: [30.13, -18.125],
+      maxBounds: bounds,
+      zoom: 9,
+      attributionControl: false
+  });
 
+  //var mapcitiesData = citiesdatadb[0];
 
   map.on('load', function() {
 
@@ -61,27 +85,36 @@ var map = new mapboxgl.Map({
       // airports provided by Natural Earth
       map.addSource('cities', {
           "type": "geojson",
-          "data": "/geojson/cities_geom.geojson" // thi sas to be a vector data
-      });
+          "data": mapCitiesData
+        });
+
+        map.addSource('cadastre', {
+            "type": "geojson",
+            "data": mapCadastralData
+          });
 
       map.addLayer({
         "id": "city",
         "type": "fill",
         "source": "cities",
-        // "source-layer": "ne_10m_airports",
-        //"type": "symbol",
-        /*  "layout": {
-          "icon-image": "airport-15",
-          "icon-padding": 0,
-          "icon-allow-overlap":true
-        }
-        */
         'layout': {},
         'paint': {
           'fill-color': '#088',
           'fill-opacity': 0.8
         }
       });
+
+      map.addLayer({
+        'id': 'cadastre',
+        'type': 'fill',
+        'source': 'cadastre',
+        'layout': {},
+        'paint': {
+            'fill-color': 'sienna',
+            'fill-opacity': 0.5,
+            "fill-outline-color": "white"
+        }
+    });
   });
 
 </script>

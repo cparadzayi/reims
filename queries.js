@@ -99,10 +99,45 @@ function removeAccount(req, res, next) {
     });
 }
 
+function getCitiesData(req, res, next){
+  var citiesquery = "SELECT 'FeatureCollection' AS type, array_to_json(array_agg(f)) AS features FROM (SELECT 'Feature' AS type, ST_AsGeoJSON(lg.geom, 6)::json As geometry, row_to_json((SELECT l FROM (SELECT name, cityid) AS l)) AS properties FROM zimcities AS lg ) AS f";
+
+  db.any(citiesquery)
+  .then(function (data) {
+      res.status(200)
+        .json({
+          status: 'success',
+          data: data,
+        });
+    })
+    .catch(function(err){
+      if (err) {return next()}
+    })
+}
+
+function getCadastralData(req, res, next){
+  var cadastresql = "SELECT 'FeatureCollection' AS type, array_to_json(array_agg(f)) AS features FROM (SELECT 'Feature' AS type, ST_AsGeoJSON(lg.geom, 6)::json As geometry, row_to_json((SELECT l FROM (SELECT dsg_num, cityid, townshipid) AS l)) AS properties FROM cadastre AS lg ) AS f";
+
+  db.any(cadastresql)
+  .then(function (data){
+    res.status(200)
+    .json({
+      status: 'success',
+      data: data,
+    })
+  })
+  .catch(function(err){
+    if (err) {return next()}
+  })
+}
+
 module.exports = {
   getAllclients: getAllclients,
   getSingleAccount: getSingleAccount,
   createAccount: createAccount,
   updateAccount: updateAccount,
-  removeAccount: removeAccount
+  removeAccount: removeAccount,
+  dbConnection: db,
+  getCitiesData: getCitiesData,
+  getCadastralData: getCadastralData
 };
