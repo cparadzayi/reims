@@ -31,7 +31,7 @@ router.get('/cities', function (req, res, next) {
 
 //MY MIDDLEWARE TO ALLOW THE APIS TO BE ACCESD FOM ANY DOMAIN
 app.use(function (req, res, next) {
-  res.setHeaders('Access-Control-Allow-Origin','*')
+  res.header('Access-Control-Allow-Origin','*')
   next()
 })
 
