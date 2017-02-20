@@ -11,6 +11,12 @@ var dbConnection = db.dbConnection;
 var app = express();
 
 
+//MY MIDDLEWARE TO ALLOW THE APIS TO BE ACCESD FOM ANY DOMAIN
+app.use(function (req, res, next) {
+  res.header('Access-Control-Allow-Origin','*')
+  next()
+})
+
 /* GET home page. */
 router.get('/', function(req, res, next) {
   res.render('index', { title: 'Real Estate Information Management System 2017' });
@@ -28,12 +34,6 @@ router.get('/cities', function (req, res, next) {
         title: 'Real Estate Information Management System 2017',
     });
 });
-
-//MY MIDDLEWARE TO ALLOW THE APIS TO BE ACCESD FOM ANY DOMAIN
-app.use(function (req, res, next) {
-  res.header('Access-Control-Allow-Origin','*')
-  next()
-})
 
 /*Api registrations*/
 
