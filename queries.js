@@ -37,7 +37,9 @@ function getSingleAccount(req, res, next) {
   var accountID = parseInt(req.params.id);
   db.one('select * from clients where id = $1', accountID)
     .then(function (data) {
-      res.status(200)
+      res
+        .status(200)
+        .header('Access-Control-Allow-Origin','*')
         .json({
           status: 'success',
           data: data,
