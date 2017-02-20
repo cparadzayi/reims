@@ -9,7 +9,7 @@ var pgp = require('pg-promise')(options);
 
 // move the two database connection options into the aoo,js and set development and production environments respectiveky
 //var connectionString = 'postgres://postgres:admin@localhost:5432/reimsdb'
-var connectionString = process.env.DATABASE_URL || 'postgres://postgres:admin@localhost:5432/reimsdb'
+var connectionString = process.env.DATABASE_URL || 'postgres://postgres:admin@localhost:5432/reimsdb';
 var db = pgp(connectionString);
 
 /* connecting to Heroku postgresql database
@@ -22,6 +22,7 @@ function getAllclients(req, res, next) {
   db.any('select * from clients')
     .then(function (data) {
       res.status(200)
+        .header('Access-Control-Allow-Origin','*')
         .json({
           status: 'success',
           data: data,
@@ -58,6 +59,7 @@ function createAccount(req, res, next) {
     req.body)
     .then(function () {
       res.status(200)
+        .header('Access-Control-Allow-Origin','*')
         .json({
           status: 'success',
           messaccountnum: 'Inserted one account'
@@ -74,6 +76,7 @@ function updateAccount(req, res, next) {
       req.body.accountnum, parseInt(req.params.id)])
     .then(function () {
       res.status(200)
+        .header('Access-Control-Allow-Origin','*')
         .json({
           status: 'success',
           messaccountnum: 'Updated account'
@@ -90,6 +93,7 @@ function removeAccount(req, res, next) {
     .then(function (result) {
       /* jshint ignore:start */
       res.status(200)
+        .header('Access-Control-Allow-Origin','*')
         .json({
           status: 'success',
           messaccountnum: `Removed ${result.rowCount} account`
@@ -107,14 +111,15 @@ function getCitiesData(req, res, next){
   db.any(citiesquery)
   .then(function (data) {
       res.status(200)
+        .header('Access-Control-Allow-Origin','*')
         .json({
           status: 'success',
           data: data,
         });
     })
     .catch(function(err){
-      if (err) {return next()}
-    })
+      if (err) {return next();}
+    });
 }
 
 function getCadastralData(req, res, next){
@@ -123,14 +128,15 @@ function getCadastralData(req, res, next){
   db.any(cadastresql)
   .then(function (data){
     res.status(200)
+    .header('Access-Control-Allow-Origin','*')
     .json({
       status: 'success',
       data: data,
-    })
+    });
   })
   .catch(function(err){
-    if (err) {return next()}
-  })
+    if (err) {return next();}
+  });
 }
 
 module.exports = {
