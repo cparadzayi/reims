@@ -60,7 +60,7 @@ function getSingleAccount(req, res, next) {
 
 function getAccountByName(req, res, next) {
   var accountName = req.param('name').toLowerCase();
-  db.one('select * from clients where lower(name) like \'\% \$1 \%\' or lower(surname) like \'\% \$2 \%\' ', accountName, accountName)
+  db.one('select * from clients where lower(name) like '% $1 %' or lower(surname) like '% $2 %' ', accountName, accountName)
     .then(function (data) {
       res
         .status(200)
