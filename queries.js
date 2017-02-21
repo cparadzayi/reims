@@ -160,6 +160,7 @@ function getCadastralData(req, res, next){
 module.exports = {
   getAllclients: getAllclients,
   getSingleAccount: getSingleAccount,
+  getAccountByName:getAccountByName,
   createAccount: createAccount,
   updateAccount: updateAccount,
   removeAccount: removeAccount,

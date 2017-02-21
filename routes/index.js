@@ -40,6 +40,7 @@ router.get('/cities', function (req, res, next) {
 //client apis
 router.get('/api/clients', db.getAllclients);
 router.get('/api/clients/:id', db.getSingleAccount);
+router.get('/api/clients?name', db.getAccountByName);
 router.post('/api/clients', db.createAccount);
 router.put('/api/clients/:id', db.updateAccount);
 router.delete('/api/clients/:id', db.removeAccount);
