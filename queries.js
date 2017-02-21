@@ -52,6 +52,24 @@ function getSingleAccount(req, res, next) {
     });
 }
 
+function getAccountByName(req, res, next) {
+  var accountName = req.params.name.toLowerCase();
+  db.one('select * from clients where lower(name) like \'\% \$1 \%\' or surname like \'\% \$2 \%\' ', accountName, accountName)
+    .then(function (data) {
+      res
+        .status(200)
+        .header('Access-Control-Allow-Origin','*')
+        .json({
+          status: 'success',
+          data: data,
+          messaccountnum: 'Retrieved ONE account'
+        });
+    })
+    .catch(function (err) {
+      return next(err);
+    });
+}
+
 function createAccount(req, res, next) {
   req.body.townshipid = parseInt(req.body.townshipid);
   db.none('insert into clients(name, surname, accountnum, townshipid)' +
