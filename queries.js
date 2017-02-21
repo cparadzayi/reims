@@ -19,7 +19,7 @@ var db = pg(herokuconnectionString);
 */
 // add query functions
 function getAllclients(req, res, next) {
-
+  console.log(req.params)
   // if name query provided search accunts by name
   if (req.params.name) {
     return getAccountByName(req, res, next);
