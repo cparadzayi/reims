@@ -19,9 +19,9 @@ var db = pg(herokuconnectionString);
 */
 // add query functions
 function getAllclients(req, res, next) {
-  console.log(req.params)
+  let name = req.param('name');
   // if name query provided search accunts by name
-  if (req.params.name) {
+  if (name) {
     return getAccountByName(req, res, next);
   }
 
@@ -59,8 +59,8 @@ function getSingleAccount(req, res, next) {
 }
 
 function getAccountByName(req, res, next) {
-  var accountName = req.params.name.toLowerCase();
-  db.one('select * from clients where lower(name) like \'\% \$1 \%\' or surname like \'\% \$2 \%\' ', accountName, accountName)
+  var accountName = req.param('name').toLowerCase();
+  db.one('select * from clients where lower(name) like \'\% \$1 \%\' or lower(surname) like \'\% \$2 \%\' ', accountName, accountName)
     .then(function (data) {
       res
         .status(200)
