@@ -46,6 +46,7 @@
 
   var mapCadastralData = {};
   var mapCitiesData = {};
+  var mapReservations = {};
 
   function getMapCitiesData () {
     return axios.get('/api/cities')
@@ -53,11 +54,14 @@
   function getCadastralData () {
     return axios.get('/api/cadastre')
   }
-
-  axios.all([getMapCitiesData(),getCadastralData()])
-  .then(axios.spread(function(cities,cadastre){
+  function getReservationsData () {
+    return axios.get('/api/reservations')
+  }
+  axios.all([getMapCitiesData(),getCadastralData(), getReservationsData()])
+  .then(axios.spread(function(cities,cadastre,reservations){
     mapCitiesData = cities.data.data[0]
     mapCadastralData = cadastre.data.data[0]
+    mapReservations = reservations.data.data[0]
   }))
   .catch(function (err){
     console.log(err)
@@ -88,10 +92,15 @@
           "data": mapCitiesData
         });
 
-        map.addSource('cadastre', {
-            "type": "geojson",
-            "data": mapCadastralData
-          });
+      map.addSource('cadastre', {
+          "type": "geojson",
+          "data": mapCadastralData
+        });
+
+      map.addSource('reservations', {
+          "type": "geojson",
+          "data": mapReservations
+        });
 
       map.addLayer({
         "id": "city",
@@ -115,6 +124,19 @@
             "fill-outline-color": "white"
         }
     });
+
+    map.addLayer({
+      'id': 'reservations',
+      'type': 'fill',
+      'source': 'reservations',
+      'layout': {},
+      'paint': {
+          'fill-color': 'yellow',
+          'fill-opacity': 0.5,
+          "fill-outline-color": "white"
+      }
+    })
+
   });
 
 </script>

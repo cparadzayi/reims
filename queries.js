@@ -34,8 +34,8 @@ function getAllclients(req, res, next) {
 }
 
 function getSingleAccount(req, res, next) {
-  var accountID = parseInt(req.params.id);
-  db.one('select * from clients where id = $1', accountID)
+  var accountID = req.params.id;
+  db.one('select * from clients where clientid = $1', accountID)
     .then(function (data) {
       res
         .status(200)
@@ -102,9 +102,25 @@ function removeAccount(req, res, next) {
 }
 
 function getCitiesData(req, res, next){
-  var citiesquery = "SELECT 'FeatureCollection' AS type, array_to_json(array_agg(f)) AS features FROM (SELECT 'Feature' AS type, ST_AsGeoJSON(lg.geom, 6)::json As geometry, row_to_json((SELECT l FROM (SELECT name, cityid) AS l)) AS properties FROM zimcities AS lg ) AS f";
+  var citiesquery = "SELECT 'FeatureCollection' AS type, array_to_json(array_agg(f)) AS features FROM (SELECT 'Feature' AS type, ST_AsGeoJSON(lg.geom, 6)::json As geometry, row_to_json((SELECT l FROM (SELECT name, cityid) AS l)) AS properties FROM cities AS lg ) AS f";
 
   db.any(citiesquery)
+  .then(function (data) {
+      res.status(200)
+        .json({
+          status: 'success',
+          data: data,
+        });
+    })
+    .catch(function(err){
+      if (err) {return next()}
+    })
+}
+
+function getReservations(req, res, next){
+  var reservaationsQuery = "    SELECT 'FeatureCollection' AS type, array_to_json(array_agg(f)) AS features FROM (SELECT 'Feature' AS type, ST_AsGeoJSON(cadastre.geom, 6)::json As geometry, row_to_json((SELECT l FROM (SELECT reservations.standid,clients.clientid, clients.surname, clients.name) AS l)) AS properties FROM cadastre, reservations, clients WHERE   reservations.standid = cadastre.standid AND reservations.clientid = clients.clientid) AS f";
+
+  db.any(reservaationsQuery)
   .then(function (data) {
       res.status(200)
         .json({
@@ -141,5 +157,6 @@ module.exports = {
   removeAccount: removeAccount,
   dbConnection: db,
   getCitiesData: getCitiesData,
+  getReservations: getReservations,
   getCadastralData: getCadastralData
 };
