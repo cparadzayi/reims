@@ -41,23 +41,30 @@ Documentation
 
 ### GET requests
     
-    **/api/clients/**
+   1. **/api/clients/**
 
-    Returns all the clients in the database in the format
+        Returns all the clients in the database in the JSON format as follows
 
-    ```json
-     [{
-        name: String,
-        surname: String,
-        accountnum: String,
-        townshipid: Integer,"cityid":7,"nid":"70-071864-T-18","address":"6322 Southview"
-      }, 
-      {..}, 
-      ]
-    ```
+        ```javascript
+         [
+             {
+                name: String,
+                surname: String,
+                accountnum: String,
+                townshipid: Integer,"cityid":7,"nid":"70-071864-T-18","address":"6322 Southview"
+              }, 
+              {..}, 
+          ]
+        ```
+        
+    2. **/api/clients/:id** 
+    3. **/api/cities/** 
+    4. **/api/cadastre/**
+    5. **/api/reservations/** 
 
-    ** /api/clients/:id ** 
-    ** /api/cities/ ** 
-    ** /api/cadastre/ ** 
-    ** /api/reservations/ ** 
+### POST requests
+
+:
+:
+
 
