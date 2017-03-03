@@ -122,7 +122,8 @@ There are three approaches that are adopted by some of the big guys in the game:
   {
      "type" : "OauthException",
      "message":"(#803) Some of the aliases you requested do not exist: foo.bar"
-  } ```
+  }
+  ```
 
   **Twilio**
 
@@ -133,7 +134,8 @@ There are three approaches that are adopted by some of the big guys in the game:
      "message":"Authenticate",
      "code": 20003,
      "more  info": "http://www.twilio.com/docs/errors/20003"
-  }```
+  }
+  ```
 
   **SimpleGeo**
 
@@ -142,7 +144,8 @@ There are three approaches that are adopted by some of the big guys in the game:
   {
     "code" : 401,
     "message": "Authentication Required"
-  }```
+  }
+  ```
 
   **So what does this all mean?**
 
