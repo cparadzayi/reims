@@ -41,8 +41,8 @@ function getAllclients(req, res, next) {
 }
 
 function getSingleAccount(req, res, next) {
-  var accountID = parseInt(req.params.id);
-  db.one('select * from clients where id = $1', accountID)
+  var accountID = req.params.id;
+  db.one('select * from clients where nid = $1', accountID)
     .then(function (data) {
       res
         .status(200)
