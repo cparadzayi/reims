@@ -167,62 +167,55 @@ There are three approaches that are adopted by some of the big guys in the game:
 
 Each of the big guys above has his own way of dealing with errors. So which one is the right way? All of them!
 
+1. **Use http status codes**
 
-fd
-fdffdf
+    There are over 70 http codes but you don't have to use them all. After boiling it all down only these 3 functions remain:
 
-df
-d
-ff
+     * Everything worked - success
+     * The application did something wrong – client error
+     * The API did something wrong – server error
 
+So as a general rule start by using the following 3 If you need more, add them. But you shouldn't need to go beyond 8.
 
-df
-df
+  * 200 - OK
+  * 400 - Bad Request
+  * 500 - Internal Server error
 
-d
-fdf
-df
+If you're not comfortable reducing all your error conditions to these 3, try picking among these additional 5:
+  * 201 - Created
+  * 304 - Not Modified
+  * 404 – Not Found
+  * 401 - Unauthorized
+  * 403 - Forbidden
 
-df
+2. **Make messages returned in the payload as verbose as possible.**
 
-d
-f
-df
-d
+    Enter as much detail about what could have caused the error that the developer consuming your API can easily troubleshoot.
 
-fdf
-df
+### Versioning
 
-d
-fxm
-df
+  **Never release an API without a version and make the version mandatory**
 
-d
-ff
-d
-ff
-d
+  Let's see how some of the API sharks handle versioning.
 
+  * Twilio ```/2010-04-01/Accounts/```
+  * salesforce.com ```/services/data/v20.0/sobjects/Account```
+  * Facebook ```?v=1.0```
 
+  **swilio**
 
+      Makes use of a time stamp. Very clever but potentially confusing. Is the time compilation time or the time when the API was released?
 
+  **salesforce**
 
+      Makes use of a the **v.** notation. The **.0** implies that the API interface changes frequently and that's not good for production. The logic behind the API can change frequently but no the  interface itself.
 
+  **facebook**
 
+      Also makes use of a of the **v.** notation but makes it an optional parameter. If facebook ups the version of the API all the apps tat didn't include the version could break.
 
+**So what versioning method should I use?**
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-dfdfdf
-### Nouns are good, verbs are bad
+Specify the version with a 'v' prefix. Move it all the way to the left in the URL so that it has
+the highest scope (e.g. /v1/dogs).
+Use a simple ordinal number. Don't use the dot notation like v1.2
