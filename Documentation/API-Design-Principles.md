@@ -2,6 +2,12 @@
 
 Some sections article are adapted from an [e-book](https://apigee.com/about/cp/api-design-principles) written by a team at [apigee](https://apigee.com).
 
+**Further reading**
+
+* http://blog.mwaysolutions.com/2014/06/05/10-best-practices-for-better-restful-api/
+* http://vinaysahni.com/best-practices-for-a-pragmatic-restful-api
+
+---
 ## Introduction
 
 > This article is a collection of design practices that has have developed in collaboration with
