@@ -50,6 +50,9 @@ router.get('/api/cadastre', db.getCadastralData);
 
 router.get('/api/reservations', db.getReservations);
 
+// stands api
+router.get('/api/stands/available', db.getAvailableStands);
+
 
 app.get('/db', function (request, response) {
   pg.connect(process.env.DATABASE_URL, function(err, client, done) {
