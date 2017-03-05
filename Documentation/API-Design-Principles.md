@@ -53,9 +53,9 @@ Let's see what we can do with our two resources ```/stands``` and ```/stands/123
 | ```/stands```     | Create new stand | List stands    | Bulk update stands                      | Delete all stands |
 | ```/stands/123``` | Error            | Show stand 123 | If exists update stand 123. If not error | Delete stand 123  |
 
-**Now that I,m usung nons should I use singular or plural**
+**Now that I'm using nouns should I use singular or plural**
 
-Since the most common HTTP verb to be used is get it makes sense to use plural form. You can use both but be sure to be consistent and document your API well indicating the cases where either a singular or plural form o the noun ins required
+Since the most common HTTP verb to be used is ```GET``` it makes sense to use plural form. You can use both  plural and singular but be sure to be consistent and document your API well indicating the cases where either a singular or plural form o the noun ins required
 
 **Concrete names are better than abstract ones**
 
@@ -98,7 +98,7 @@ need too many cases where a URL is deeper than what we have above
 
 Complexities can include many states that can be updated, changed, queried, as well as the attributes associated with a resource.
 
-Strive to make it simple for developers by placing optional states and attributes behind the '?'. Fo exaple to get all the sold stands in Gweru we could use
+Strive to make it simple for developers by placing optional states and attributes behind the '?'. For example to get all the sold stands in Gweru we could use
 
 ```
 GET /stands?city=gweru&sold=true
@@ -178,18 +178,18 @@ Each of the big guys above has his own way of dealing with errors. So which one 
      * The application did something wrong – client error
      * The API did something wrong – server error
 
-So as a general rule start by using the following 3 If you need more, add them. But you shouldn't need to go beyond 8.
+  So as a general rule start by using the following 3 If you need more, add them. But you shouldn't need to go beyond 8.
 
-  * 200 - OK
-  * 400 - Bad Request
-  * 500 - Internal Server error
+    * 200 - OK
+    * 400 - Bad Request
+    * 500 - Internal Server error
 
-If you're not comfortable reducing all your error conditions to these 3, try picking among these additional 5:
-  * 201 - Created
-  * 304 - Not Modified
-  * 404 – Not Found
-  * 401 - Unauthorized
-  * 403 - Forbidden
+  If you're not comfortable reducing all your error conditions to these 3, try picking among these additional 5:
+    * 201 - Created
+    * 304 - Not Modified
+    * 404 – Not Found
+    * 401 - Unauthorized
+    * 403 - Forbidden
 
 2. **Make messages returned in the payload as verbose as possible.**
 
@@ -202,10 +202,10 @@ If you're not comfortable reducing all your error conditions to these 3, try pic
   Let's see how some of the API sharks handle versioning.
 
   * Twilio ```/2010-04-01/Accounts/```
-  * salesforce.com ```/services/data/v20.0/sobjects/Account```
+  * salesforce.com ```/services/data/v20.0/objects/Account```
   * Facebook ```?v=1.0```
 
-  **swilio**
+  **twilio**
 
       Makes use of a time stamp. Very clever but potentially confusing. Is the time compilation time or the time when the API was released?
 
