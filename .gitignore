@@ -1,6 +1,12 @@
 # Node generated files
 node_modules
 
+*.log
+public
+
+# and shapefiles
+shapefiles
+
 # Windows image file caches
 Thumbs.db
 ehthumbs.db
@@ -36,4 +42,4 @@ Desktop.ini
 Network Trash Folder
 Temporary Items
 .apdisk
-"node_modules" 
+"node_modules"

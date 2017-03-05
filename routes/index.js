@@ -48,6 +48,12 @@ router.delete('/api/clients/:id', db.removeAccount);
 router.get('/api/cities', db.getCitiesData);
 router.get('/api/cadastre', db.getCadastralData);
 
+router.get('/api/reservations', db.getReservations);
+
+// stands api
+router.get('/api/stands/available', db.getAvailableStands);
+
+
 app.get('/db', function (request, response) {
   pg.connect(process.env.DATABASE_URL, function(err, client, done) {
     client.query('SELECT * FROM test_table', function(err, result) {
