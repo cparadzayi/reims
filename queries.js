@@ -22,6 +22,7 @@ function getAllclients(req, res, next) {
   db.any('select * from clients')
     .then(function (data) {
       res.status(200)
+        .header('Access-Control-Allow-Origin','*')
         .json({
           status: 'success',
           data: data,
@@ -58,6 +59,7 @@ function createAccount(req, res, next) {
     req.body)
     .then(function () {
       res.status(200)
+        .header('Access-Control-Allow-Origin','*')
         .json({
           status: 'success',
           messaccountnum: 'Inserted one account'
@@ -74,6 +76,7 @@ function updateAccount(req, res, next) {
       req.body.accountnum, parseInt(req.params.id)])
     .then(function () {
       res.status(200)
+        .header('Access-Control-Allow-Origin','*')
         .json({
           status: 'success',
           messaccountnum: 'Updated account'
@@ -90,6 +93,7 @@ function removeAccount(req, res, next) {
     .then(function (result) {
       /* jshint ignore:start */
       res.status(200)
+        .header('Access-Control-Allow-Origin','*')
         .json({
           status: 'success',
           messaccountnum: `Removed ${result.rowCount} account`
@@ -107,6 +111,7 @@ function getCitiesData(req, res, next){
   db.any(citiesquery)
   .then(function (data) {
       res.status(200)
+        .header('Access-Control-Allow-Origin','*')
         .json({
           status: 'success',
           data: data,
@@ -123,6 +128,7 @@ function getReservations(req, res, next){
   db.any(reservaationsQuery)
   .then(function (data) {
       res.status(200)
+        .header('Access-Control-Allow-Origin','*')
         .json({
           status: 'success',
           data: data,
@@ -139,6 +145,7 @@ function getCadastralData(req, res, next){
   db.any(cadastresql)
   .then(function (data){
     res.status(200)
+    .header('Access-Control-Allow-Origin','*')
     .json({
       status: 'success',
       data: data,
@@ -160,6 +167,7 @@ function getAllStands(req, res, next){
       db.any(availablestandssql)
       .then(function (data){
         res.status(200)
+        .header('Access-Control-Allow-Origin','*')
         .json({
           status: 'success',
           data: data,
@@ -181,6 +189,7 @@ function getAllStands(req, res, next){
     db.any(availablestandssql)
     .then(function (data){
       res.status(200)
+      .header('Access-Control-Allow-Origin','*')
       .json({
         message: "I am not seeing the map parameter",
         status: 'success',
