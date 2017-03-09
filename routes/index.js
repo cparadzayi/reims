@@ -51,7 +51,7 @@ router.get('/api/cadastre', db.getCadastralData);
 router.get('/api/reservations', db.getReservations);
 
 // stands api
-router.get('/api/stands/available', db.getAvailableStands);
+router.get('/api/stands/all', db.getAllStands);
 
 
 app.get('/db', function (request, response) {
