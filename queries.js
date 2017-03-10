@@ -156,14 +156,14 @@ function getCadastralData(req, res, next){
   })
 }
 
-function getAvailableStands(req, res, next){
+function getAllStands(req, res, next){
 
   if (req.query.map)
   {
 
-      var availablestandssql = "SELECT 'FeatureCollection' AS type, array_to_json(array_agg(f)) AS features FROM (SELECT 'Feature' AS type, ST_AsGeoJSON(lg.geom, 6)::json As geometry, row_to_json((SELECT l FROM (SELECT dsg_num, cityid, townshipid) AS l)) AS properties FROM cadastre AS lg ) AS f";
+      var allStandsSql = "SELECT 'FeatureCollection' AS type, array_to_json(array_agg(f)) AS features FROM (SELECT 'Feature' AS type, ST_AsGeoJSON(lg.geom, 6)::json As geometry, row_to_json((SELECT l FROM (SELECT dsg_num, cityid, townshipid) AS l)) AS properties FROM cadastre AS lg ) AS f";
 
-      db.any(availablestandssql)
+      db.any(allStandsSql)
       .then(function (data){
         res.status(200)
         .header('Access-Control-Allow-Origin','*')
@@ -181,10 +181,10 @@ function getAvailableStands(req, res, next){
   }
   else
   {
-    var availablestandssql = "SELECT cadastre.dsg_num AS Stand, cities.name AS City, townships.name AS Township FROM cadastre, cities, townships WHERE cadastre.townshipid = townships.townshipid AND cadastre.cityid = cities.cityid";
+    var allStandsSql = "SELECT cadastre.dsg_num AS Stand, cities.name AS City, townships.name AS Township FROM cadastre, cities, townships WHERE cadastre.townshipid = townships.townshipid AND cadastre.cityid = cities.cityid";
     //var leakagequery = "SELECT 'FeatureCollection' AS type, array_to_json(array_agg(f)) AS features FROM (SELECT 'Feature' AS type,   ST_AsGeoJSON(leakages.geom, 6)::json As geometry,    row_to_json((SELECT l FROM (SELECT townships.name AS townshipname,leakages.source AS source, leakages.status AS status, leakages.intensity AS intensity, leakages.datereported as datereported, leakages.recorder as reporter, townships.geom) AS l)) AS properties FROM townships, leakages     WHERE  ST_Within(leakages.geom, townships.geom)   GROUP BY leakages.geom,townships.name ,leakages.source , leakages.status , leakages.intensity,leakages.recorder, leakages.datereported,townships.geom ) AS f";
 
-    db.any(availablestandssql)
+    db.any(allStandsSql)
     .then(function (data){
       res.status(200)
       .header('Access-Control-Allow-Origin','*')
@@ -213,5 +213,5 @@ module.exports = {
   getCitiesData: getCitiesData,
   getReservations: getReservations,
   getCadastralData: getCadastralData,
-  getAvailableStands: getAvailableStands
+  getAllStands: getAllStands
 };
