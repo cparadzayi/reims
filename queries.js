@@ -19,6 +19,12 @@ var db = pg(herokuconnectionString);
 */
 // add query functions
 function getAllclients(req, res, next) {
+  var search_name = req.param('name');
+  // if name query provided search accunts by name
+  if (search_name) {
+    return getAccountByName(req, res, next);
+  }
+
   db.any('select * from clients')
     .then(function (data) {
       res.status(200)
@@ -36,7 +42,25 @@ function getAllclients(req, res, next) {
 
 function getSingleAccount(req, res, next) {
   var accountID = req.params.id;
-  db.one('select * from clients where clientid = $1', accountID)
+  db.one('select * from clients where nid = $1', accountID)
+    .then(function (data) {
+      res
+        .status(200)
+        .header('Access-Control-Allow-Origin','*')
+        .json({
+          status: 'success',
+          data: data,
+          messaccountnum: 'Retrieved ONE account'
+        });
+    })
+    .catch(function (err) {
+      return next(err);
+    });
+}
+
+function getAccountByName(req, res, next) {
+  var accountName = req.param('name').toLowerCase();
+  db.any('select * from clients where lower(name) like \'\%'+ accountName+'\%\' or lower(surname) like \'\%' +accountName + '\%\'' )
     .then(function (data) {
       res
         .status(200)
