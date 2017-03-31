@@ -164,7 +164,8 @@ function getAllStands(req, res, next){
     //var availablestandssql = "SELECT 'FeatureCollection' AS type, array_to_json(array_agg(f)) AS features FROM (SELECT 'Feature' AS type, ST_AsGeoJSON(lg.geom, 6)::json As geometry, row_to_json((SELECT l FROM (SELECT dsg_num, cityid, townshipid) AS l)) AS properties FROM cadastre AS lg ) AS f";
     var allstandssql = "SELECT row_to_json(fc) FROM (SELECT 'FeatureCollection' As type, array_to_json(array_agg(f)) As features  FROM (SELECT 'Feature' As type, ST_AsGeoJSON(lg.geom)::json As geometry, row_to_json  ((SELECT l FROM (SELECT lg.standid AS standid, c.name AS city, t.name AS township FROM cities c, townships t WHERE c.cityid= lg.cityid AND t.townshipid = lg.townshipid) As l)) As properties FROM cadastre  As lg) As f ) As fc";
 
-      db.any(allstandssql)
+
+    db.any(allStandsSql)
       .then(function (data){
         res.status(200)
         .header('Access-Control-Allow-Origin','*')
@@ -186,6 +187,7 @@ function getAllStands(req, res, next){
     //var leakagequery = "SELECT 'FeatureCollection' AS type, array_to_json(array_agg(f)) AS features FROM (SELECT 'Feature' AS type,   ST_AsGeoJSON(leakages.geom, 6)::json As geometry,    row_to_json((SELECT l FROM (SELECT townships.name AS townshipname,leakages.source AS source, leakages.status AS status, leakages.intensity AS intensity, leakages.datereported as datereported, leakages.recorder as reporter, townships.geom) AS l)) AS properties FROM townships, leakages     WHERE  ST_Within(leakages.geom, townships.geom)   GROUP BY leakages.geom,townships.name ,leakages.source , leakages.status , leakages.intensity,leakages.recorder, leakages.datereported,townships.geom ) AS f";
 
     db.any(allstandssql)
+
     .then(function (data){
       res.status(200)
       .header('Access-Control-Allow-Origin','*')
