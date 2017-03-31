@@ -35,6 +35,11 @@ router.get('/cities', function (req, res, next) {
     });
 });
 
+router.get('/garagestores', function (req, res, next) {
+    res.render('garagestores', {
+        title: 'Garage Stores Information Management System 2017',
+    });
+});
 /*Api registrations*/
 
 //client apis
@@ -51,7 +56,9 @@ router.get('/api/cadastre', db.getCadastralData);
 router.get('/api/reservations', db.getReservations);
 
 // stands api
-router.get('/api/stands/all', db.getAllStands);
+router.get('/api/stands', db.getAllStands);
+router.get('/api/stands/reservations', db.getReservedStands);
+router.get('/api/stands/sold', db.getSoldStands);
 
 
 app.get('/db', function (request, response) {

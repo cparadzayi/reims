@@ -162,14 +162,13 @@ function getAllStands(req, res, next){
   {
 
     //var availablestandssql = "SELECT 'FeatureCollection' AS type, array_to_json(array_agg(f)) AS features FROM (SELECT 'Feature' AS type, ST_AsGeoJSON(lg.geom, 6)::json As geometry, row_to_json((SELECT l FROM (SELECT dsg_num, cityid, townshipid) AS l)) AS properties FROM cadastre AS lg ) AS f";
-    var availablestandssql = "SELECT row_to_json(fc) FROM (SELECT 'FeatureCollection' As type, array_to_json(array_agg(f)) As features  FROM (SELECT 'Feature' As type, ST_AsGeoJSON(lg.geom)::json As geometry, row_to_json  ((SELECT l FROM (SELECT lg.standid AS standid, c.name AS city, t.name AS township FROM cities c, townships t WHERE c.cityid= lg.cityid AND t.townshipid = lg.townshipid) As l)) As properties FROM cadastre  As lg) As f ) As fc";
+    var allstandssql = "SELECT row_to_json(fc) FROM (SELECT 'FeatureCollection' As type, array_to_json(array_agg(f)) As features  FROM (SELECT 'Feature' As type, ST_AsGeoJSON(lg.geom)::json As geometry, row_to_json  ((SELECT l FROM (SELECT lg.standid AS standid, c.name AS city, t.name AS township FROM cities c, townships t WHERE c.cityid= lg.cityid AND t.townshipid = lg.townshipid) As l)) As properties FROM cadastre  As lg) As f ) As fc";
 
-      db.any(availablestandssql)
+      db.any(allstandssql)
       .then(function (data){
         res.status(200)
         .header('Access-Control-Allow-Origin','*')
         .json({
-          status: 'success',
           data: data,
           message: "I have detected the map parameter"
 
@@ -183,10 +182,10 @@ function getAllStands(req, res, next){
   }
   else
   {
-    var availablestandssql = "SELECT cadastre.standid AS StandID, cadastre.dsg_num AS Stand, cities.name AS City, townships.name AS Township FROM cadastre, cities, townships WHERE cadastre.townshipid = townships.townshipid AND cadastre.cityid = cities.cityid";
+    var allstandssql = "SELECT cadastre.standid AS StandID, cadastre.dsg_num AS Stand, cities.name AS City, townships.name AS Township FROM cadastre, cities, townships WHERE cadastre.townshipid = townships.townshipid AND cadastre.cityid = cities.cityid";
     //var leakagequery = "SELECT 'FeatureCollection' AS type, array_to_json(array_agg(f)) AS features FROM (SELECT 'Feature' AS type,   ST_AsGeoJSON(leakages.geom, 6)::json As geometry,    row_to_json((SELECT l FROM (SELECT townships.name AS townshipname,leakages.source AS source, leakages.status AS status, leakages.intensity AS intensity, leakages.datereported as datereported, leakages.recorder as reporter, townships.geom) AS l)) AS properties FROM townships, leakages     WHERE  ST_Within(leakages.geom, townships.geom)   GROUP BY leakages.geom,townships.name ,leakages.source , leakages.status , leakages.intensity,leakages.recorder, leakages.datereported,townships.geom ) AS f";
 
-    db.any(availablestandssql)
+    db.any(allstandssql)
     .then(function (data){
       res.status(200)
       .header('Access-Control-Allow-Origin','*')
@@ -205,6 +204,102 @@ function getAllStands(req, res, next){
   };
 
 }
+
+function getReservedStands(req, res, next){
+
+  if (req.query.map)
+  {
+
+    //var availablestandssql = "SELECT 'FeatureCollection' AS type, array_to_json(array_agg(f)) AS features FROM (SELECT 'Feature' AS type, ST_AsGeoJSON(lg.geom, 6)::json As geometry, row_to_json((SELECT l FROM (SELECT dsg_num, cityid, townshipid) AS l)) AS properties FROM cadastre AS lg ) AS f";
+  //  var reservedstands = "SELECT 'FeatureCollection' As type, array_to_json(array_agg(f)) As features  FROM (SELECT 'Feature' As type, ST_AsGeoJSON(lg.geom)::json As geometry, row_to_json  ((SELECT l FROM (    SELECT         cadastre.standid standid,          cities.name city_name,          townships.name township_name,          reservations.clientid clientid,          reservations.reservationdate reservationdate,          clients.name firstname,          clients.surname surname,          clients.email email         FROM          reservations         INNER JOIN cadastre on reservations.standid = cadastre.standid         INNER JOIN cities ON cities.cityid = cadastre.cityid         INNER JOIN townships ON townships.townshipid = cadastre.townshipid         INNER JOIN clients ON reservations.clientid = clients.clientid) As l)) As properties FROM cadastre  As lg) As f";
+
+    var reservedstands = "SELECT 'FeatureCollection' As type, array_to_json(array_agg(f)) As features FROM (SELECT 'Feature' As type, ST_AsGeoJSON(cadastre.geom)::json As geometry, row_to_json  ((SELECT l FROM (SELECT cadastre.standid AS standid, cities.name AS city, townships.name AS township, reservations.reservationdate AS reservationdate, reservations.reservationdate+period*INTERVAL'1 day' AS expirydate) AS l)) AS properties  FROM cadastre, cities, townships, reservations WHERE cadastre.standid IN (SELECT standid FROM reservations WHERE (reservationdate+period*interval '0 day', reservationdate+period*interval '1 day') OVERLAPS (reservationdate+period*interval '1 day', LOCALTIMESTAMP)) AND cadastre.standid = reservations.standid AND cadastre.cityid = cities.cityid AND cadastre.townshipid = townships.townshipid) As f";
+
+      db.any(reservedstands)
+      .then(function (data){
+        res.status(200)
+        .header('Access-Control-Allow-Origin','*')
+        .json({
+          reservedstandsmap: data
+
+        })
+      })
+      .catch(function(err){
+        console.log('Geojson trouble here !!')
+        if (err) {return next()}
+      })
+
+  }
+  else
+  {
+  //  var reservedstands = "SELECT cadastre.standid standid, cities.name city_name, townships.name township_name,  reservations.clientid clientid,  reservations.reservationdate reservationdate,  clients.name firstname, clients.surname surname, clients.email email FROM  cadastre INNER JOIN cities ON cities.cityid = cadastre.cityid INNER JOIN townships ON townships.townshipid = cadastre.townshipid INNER JOIN reservations on reservations.standid = cadastre.standid INNER JOIN clients ON reservations.clientid = clients.clientid";
+    var reservedstands ="SELECT cadastre.standid AS standid, cities.name AS city, townships.name AS township, reservations.reservationdate AS reservationdate, reservations.reservationdate+period*INTERVAL'1 day' AS expirydate  FROM cadastre, cities, townships, reservations WHERE cadastre.standid IN (SELECT standid FROM reservations WHERE (reservationdate+period*interval '0 day', reservationdate+period*interval '1 day') OVERLAPS (reservationdate+period*interval '1 day', LOCALTIMESTAMP)) AND cadastre.standid = reservations.standid AND cadastre.cityid = cities.cityid AND cadastre.townshipid = townships.townshipid";
+
+    //var leakagequery = "SELECT 'FeatureCollection' AS type, array_to_json(array_agg(f)) AS features FROM (SELECT 'Feature' AS type,   ST_AsGeoJSON(leakages.geom, 6)::json As geometry,    row_to_json((SELECT l FROM (SELECT townships.name AS townshipname,leakages.source AS source, leakages.status AS status, leakages.intensity AS intensity, leakages.datereported as datereported, leakages.recorder as reporter, townships.geom) AS l)) AS properties FROM townships, leakages     WHERE  ST_Within(leakages.geom, townships.geom)   GROUP BY leakages.geom,townships.name ,leakages.source , leakages.status , leakages.intensity,leakages.recorder, leakages.datereported,townships.geom ) AS f";
+
+    db.any(reservedstands)
+    .then(function (data){
+      res.status(200)
+      .header('Access-Control-Allow-Origin','*')
+      .json({
+        reservedstands: data
+
+      })
+    })
+    .catch(function(err){
+      console.log('problems with getting data from database!')
+      if (err) {return next()}
+    })
+
+  };
+
+}
+
+function getSoldStands(req, res, next){
+
+  if (req.query.map)
+  {
+
+    var soldstands = "SELECT 'FeatureCollection' As type, array_to_json(array_agg(f)) As features FROM (SELECT 'Feature' As type, ST_AsGeoJSON(cadastre.geom, 6)::json As geometry, row_to_json((SELECT l FROM (SELECT cadastre.standid AS standid, cities.name AS city, townships.name AS township, soldstands.clientid AS clientid, soldstands.saledate AS saledate) AS l)) AS properties  FROM soldstands INNER JOIN cadastre ON soldstands.standid = cadastre.standid INNER JOIN cities ON cities.cityid = cadastre.cityid INNER JOIN townships ON townships.townshipid = cadastre.townshipid) As f";
+
+      db.any(soldstands)
+      .then(function (data){
+        res.status(200)
+        .header('Access-Control-Allow-Origin','*')
+        .json({
+          soldstandsmap: data
+
+        })
+      })
+      .catch(function(err){
+        console.log('Geojson trouble here !!')
+        if (err) {return next()}
+      })
+
+  }
+  else
+  {
+
+    var soldstands ="SELECT cadastre.standid AS standid, cities.name AS city, townships.name AS township, reservations.reservationdate AS reservationdate, reservations.reservationdate+period*INTERVAL'1 day' AS expirydate  FROM cadastre, cities, townships, reservations WHERE cadastre.standid IN (SELECT standid FROM reservations WHERE (reservationdate+period*interval '0 day', reservationdate+period*interval '1 day') OVERLAPS (reservationdate+period*interval '1 day', LOCALTIMESTAMP)) AND cadastre.standid = soldstands.standid AND cadastre.cityid = cities.cityid AND cadastre.townshipid = townships.townshipid";
+
+    db.any(soldstands)
+    .then(function (data){
+      res.status(200)
+      .header('Access-Control-Allow-Origin','*')
+      .json({
+        soldstands: data
+
+      })
+    })
+    .catch(function(err){
+      console.log('problems with getting data from database!')
+      if (err) {return next()}
+    })
+
+  };
+
+}
+
 module.exports = {
   getAllclients: getAllclients,
   getSingleAccount: getSingleAccount,
@@ -215,5 +310,8 @@ module.exports = {
   getCitiesData: getCitiesData,
   getReservations: getReservations,
   getCadastralData: getCadastralData,
-  getAllStands: getAllStands
+  getAllStands: getAllStands,
+  getReservedStands: getReservedStands,
+  getSoldStands: getSoldStands
+
 };
