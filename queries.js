@@ -373,7 +373,7 @@ function getPayments(req, res, next){
   else
   {
 
-    var paymenthistory ="SELECT cadastre.standid standid, cities.name city_name, townships.name township_name,  soldstands.clientid clientid, soldstands.price price, receipts.amount amount, clients.name firstname, clients.surname surname, clients.email email FROM  cadastre INNER JOIN cities ON cities.cityid = cadastre.cityid INNER JOIN townships ON townships.townshipid = cadastre.townshipid INNER JOIN soldstands on soldstands.standid = cadastre.standid INNER JOIN clients ON soldstands.clientid = clients.clientid INNER JOIN receipts ON receipts.standid = cadastre.standid GROUP BY cadastre.standid, cities.name, cities.name, townships.name,  soldstands.clientid, soldstands.price, receipts.amount, clients.name, clients.surname, clients.email ORDER BY cadastre.standid DESC";
+    var paymenthistory ="SELECT cadastre.standid standid, cities.name city_name, townships.name township_name,  soldstands.clientid clientid, soldstands.price price, receipts.amount amount, receipts.recnum receiptnum, clients.name firstname, clients.surname surname, clients.email email FROM  cadastre INNER JOIN cities ON cities.cityid = cadastre.cityid INNER JOIN townships ON townships.townshipid = cadastre.townshipid INNER JOIN soldstands on soldstands.standid = cadastre.standid INNER JOIN clients ON soldstands.clientid = clients.clientid INNER JOIN receipts ON receipts.standid = cadastre.standid GROUP BY cadastre.standid, cities.name, cities.name, townships.name,  soldstands.clientid, soldstands.price, receipts.amount, receipts.recnum, clients.name, clients.surname, clients.email ORDER BY cadastre.standid DESC";
 
     db.any(paymenthistory)
     .then(function (data){
