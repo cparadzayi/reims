@@ -308,7 +308,7 @@ function getSoldStands(req, res, next){
   if (req.query.map)
   {
 
-    var soldstands = "SELECT 'FeatureCollection' As type, array_to_json(array_agg(f)) As features FROM (SELECT 'Feature' As type, ST_AsGeoJSON(cadastre.geom, 6)::json As geometry, row_to_json((SELECT l FROM (SELECT cadastre.standid AS standid, cities.name AS city, townships.name AS township, soldstands.clientid AS clientid, soldstands.saledate AS saledate) AS l)) AS properties  FROM soldstands INNER JOIN cadastre ON soldstands.standid = cadastre.standid INNER JOIN cities ON cities.cityid = cadastre.cityid INNER JOIN townships ON townships.townshipid = cadastre.townshipid) As f";
+    var soldstands = "SELECT 'FeatureCollection' As type, array_to_json(array_agg(f)) As features FROM (SELECT 'Feature' As type, ST_AsGeoJSON(cadastre.geom)::json As geometry, row_to_json  ((SELECT l FROM (SELECT cadastre.standid standid, cities.name city_name, townships.name township_name,  soldstands.clientid clientid, clients.name firstname, clients.surname surname, clients.email email) AS l)) AS properties  FROM  cadastre INNER JOIN cities ON cities.cityid = cadastre.cityid INNER JOIN townships ON townships.townshipid = cadastre.townshipid INNER JOIN soldstands on soldstands.standid = cadastre.standid INNER JOIN clients ON soldstands.clientid = clients.clientid) As f";
 
       db.any(soldstands)
       .then(function (data){
