@@ -353,14 +353,14 @@ function getPayments(req, res, next){
   if (req.query.map)
   {
 
-    var soldstands = "SELECT 'FeatureCollection' As type, array_to_json(array_agg(f)) As features FROM (SELECT 'Feature' As type, ST_AsGeoJSON(cadastre.geom)::json As geometry, row_to_json  ((SELECT l FROM (SELECT cadastre.standid standid, cities.name city_name, townships.name township_name,  soldstands.clientid clientid, clients.name firstname, clients.surname surname, clients.email email) AS l)) AS properties  FROM  cadastre INNER JOIN cities ON cities.cityid = cadastre.cityid INNER JOIN townships ON townships.townshipid = cadastre.townshipid INNER JOIN soldstands on soldstands.standid = cadastre.standid INNER JOIN clients ON soldstands.clientid = clients.clientid) As f";
+    var paymenthistory = "SELECT 'FeatureCollection' As type, array_to_json(array_agg(f)) As features FROM (SELECT 'Feature' As type, ST_AsGeoJSON(cadastre.geom)::json As geometry, row_to_json  ((SELECT l FROM (SELECT cadastre.standid standid, cities.name city_name, townships.name township_name,  soldstands.clientid clientid, clients.name firstname, clients.surname surname, clients.email email) AS l)) AS properties  FROM  cadastre INNER JOIN cities ON cities.cityid = cadastre.cityid INNER JOIN townships ON townships.townshipid = cadastre.townshipid INNER JOIN soldstands on soldstands.standid = cadastre.standid INNER JOIN clients ON soldstands.clientid = clients.clientid) As f";
 
-      db.any(soldstands)
+      db.any(paymenthistory)
       .then(function (data){
         res.status(200)
         .header('Access-Control-Allow-Origin','*')
         .json({
-          soldstandsmap: data
+          paymenthistorymap: data
 
         })
       })
@@ -373,14 +373,59 @@ function getPayments(req, res, next){
   else
   {
 
-    var soldstands ="SELECT cadastre.standid standid, cities.name city_name, townships.name township_name,  soldstands.clientid clientid, soldstands.price price, receipts.amount amount, clients.name firstname, clients.surname surname, clients.email email FROM  cadastre INNER JOIN cities ON cities.cityid = cadastre.cityid INNER JOIN townships ON townships.townshipid = cadastre.townshipid INNER JOIN soldstands on soldstands.standid = cadastre.standid INNER JOIN clients ON soldstands.clientid = clients.clientid INNER JOIN receipts ON receipts.standid = cadastre.standid";
+    var paymenthistory ="SELECT cadastre.standid standid, cities.name city_name, townships.name township_name,  soldstands.clientid clientid, soldstands.price price, receipts.amount amount, clients.name firstname, clients.surname surname, clients.email email FROM  cadastre INNER JOIN cities ON cities.cityid = cadastre.cityid INNER JOIN townships ON townships.townshipid = cadastre.townshipid INNER JOIN soldstands on soldstands.standid = cadastre.standid INNER JOIN clients ON soldstands.clientid = clients.clientid INNER JOIN receipts ON receipts.standid = cadastre.standid GROUP BY cadastre.standid, cities.name, cities.name, townships.name,  soldstands.clientid, soldstands.price, receipts.amount, clients.name, clients.surname, clients.email ORDER BY cadastre.standid DESC";
 
-    db.any(soldstands)
+    db.any(paymenthistory)
     .then(function (data){
       res.status(200)
       .header('Access-Control-Allow-Origin','*')
       .json({
-        soldstands: data
+        paymenthistory: data
+
+      })
+    })
+    .catch(function(err){
+      console.log('problems with getting payments data from database!')
+      if (err) {return next()}
+    })
+
+  };
+
+}
+
+function getPaymentsSummary(req, res, next){
+
+  if (req.query.map)
+  {
+
+    var paymentssummary = "SELECT 'FeatureCollection' As type, array_to_json(array_agg(f)) As features FROM (SELECT 'Feature' As type, ST_AsGeoJSON(cadastre.geom)::json As geometry, row_to_json  ((SELECT l FROM (SELECT cadastre.standid standid, cities.name city_name, townships.name township_name,  soldstands.clientid clientid, clients.name firstname, clients.surname surname, clients.email email) AS l)) AS properties  FROM  cadastre INNER JOIN cities ON cities.cityid = cadastre.cityid INNER JOIN townships ON townships.townshipid = cadastre.townshipid INNER JOIN soldstands on soldstands.standid = cadastre.standid INNER JOIN clients ON soldstands.clientid = clients.clientid) As f";
+
+      db.any(paymentssummary)
+      .then(function (data){
+        res.status(200)
+        .header('Access-Control-Allow-Origin','*')
+        .json({
+          paymentssummarymap: data
+
+        })
+      })
+      .catch(function(err){
+        console.log('Geojson trouble here !!')
+        if (err) {return next()}
+      })
+
+  }
+  else
+  {
+
+    var paymentssummary ="SELECT cities.name city, townships.name township, receipts.standid, clients.surname, soldstands.price, sum(receipts.amount) totalpayment FROM receipts INNER JOIN cadastre ON receipts.standid = cadastre.standid INNER JOIN cities ON cadastre.cityid = cities.cityid INNER JOIN townships ON cadastre.townshipid = townships.townshipid INNER JOIN clients ON receipts.clientid = clients.clientid INNER JOIN soldstands ON cadastre.standid = soldstands.standid GROUP BY receipts.standid, cities.name, townships.name, clients.surname, soldstands.price";
+
+    db.any(paymentssummary)
+    .then(function (data){
+      res.status(200)
+      .header('Access-Control-Allow-Origin','*')
+      .json({
+        paymentssummary: data
 
       })
     })
