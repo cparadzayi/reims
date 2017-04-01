@@ -328,7 +328,7 @@ function getSoldStands(req, res, next){
   else
   {
 
-    var soldstands ="SELECT cadastre.standid AS standid, cities.name AS city, townships.name AS township, reservations.reservationdate AS reservationdate, reservations.reservationdate+period*INTERVAL'1 day' AS expirydate  FROM cadastre, cities, townships, reservations WHERE cadastre.standid IN (SELECT standid FROM reservations WHERE (reservationdate+period*interval '0 day', reservationdate+period*interval '1 day') OVERLAPS (reservationdate+period*interval '1 day', LOCALTIMESTAMP)) AND cadastre.standid = soldstands.standid AND cadastre.cityid = cities.cityid AND cadastre.townshipid = townships.townshipid";
+    var soldstands ="SELECT cadastre.standid standid, cities.name city_name, townships.name township_name,  soldstands.clientid clientid, clients.name firstname, clients.surname surname, clients.email email FROM  cadastre INNER JOIN cities ON cities.cityid = cadastre.cityid INNER JOIN townships ON townships.townshipid = cadastre.townshipid INNER JOIN soldstands on soldstands.standid = cadastre.standid INNER JOIN clients ON soldstands.clientid = clients.clientid";
 
     db.any(soldstands)
     .then(function (data){
