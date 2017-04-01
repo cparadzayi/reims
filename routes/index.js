@@ -61,8 +61,10 @@ router.get('/api/stands/reservations', db.getReservedStands);
 router.get('/api/stands/sold', db.getSoldStands);
 router.get('/api/stands/available', db.getAvailableStands);
 
+// payments
 router.get('/api/payments/history', db.getPayments);
 router.get('/api/payments/summary', db.getPaymentsSummary);
+router.get('/api/payments/history/:id', db.getClientPaymentHistory);
 
 app.get('/db', function (request, response) {
   pg.connect(process.env.DATABASE_URL, function(err, client, done) {

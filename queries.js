@@ -36,6 +36,7 @@ function getAllclients(req, res, next) {
 
 function getSingleAccount(req, res, next) {
   var accountID = req.params.id;
+  console.log(accountID);
   db.one('select * from clients where clientid = $1', accountID)
     .then(function (data) {
       res
@@ -373,7 +374,7 @@ function getPayments(req, res, next){
   else
   {
 
-    var paymenthistory ="SELECT cadastre.standid standid, cities.name city_name, townships.name township_name,  soldstands.clientid clientid, soldstands.price price, receipts.amount amount, receipts.recnum receiptnum, paymentmode.type paymentmode, clients.name firstname, clients.surname surname, clients.email email FROM  cadastre INNER JOIN cities ON cities.cityid = cadastre.cityid INNER JOIN townships ON townships.townshipid = cadastre.townshipid INNER JOIN soldstands on soldstands.standid = cadastre.standid INNER JOIN clients ON soldstands.clientid = clients.clientid INNER JOIN receipts ON receipts.standid = cadastre.standid INNER JOIN paymentmode ON receipts.paymentcode = paymentmode.code GROUP BY cadastre.standid, cities.name, cities.name, townships.name,  soldstands.clientid, soldstands.price, receipts.amount, receipts.recnum, paymentmode.type, clients.name, clients.surname, clients.email ORDER BY cadastre.standid DESC";
+    var paymenthistory ="SELECT cadastre.standid standid, cities.name city_name, townships.name township_name,  soldstands.clientid clientid, soldstands.price price, receipts.amount amount, receipts.recnum receiptnum, paymentmode.type paymentmode, receipts.date paymentdate, clients.name firstname, clients.surname surname, clients.email email FROM  cadastre INNER JOIN cities ON cities.cityid = cadastre.cityid INNER JOIN townships ON townships.townshipid = cadastre.townshipid INNER JOIN soldstands on soldstands.standid = cadastre.standid INNER JOIN clients ON soldstands.clientid = clients.clientid INNER JOIN receipts ON receipts.standid = cadastre.standid INNER JOIN paymentmode ON receipts.paymentcode = paymentmode.code GROUP BY cadastre.standid, cities.name, cities.name, townships.name,  soldstands.clientid, soldstands.price, receipts.amount, receipts.recnum, paymentmode.type, receipts.date, clients.name, clients.surname, clients.email ORDER BY cadastre.standid DESC";
 
     db.any(paymenthistory)
     .then(function (data){
@@ -391,6 +392,27 @@ function getPayments(req, res, next){
 
   };
 
+}
+
+function getClientPaymentHistory(req, res, next) {
+  var client = req.params.id;
+  console.log(client);
+  db.one('select * from receipts where clientid = $1', client)
+    .then(function (data) {
+      res
+        .status(200)
+        .header('Access-Control-Allow-Origin','*')
+        .json({
+          status: 'success',
+          data: data,
+          messaccountnum: 'Retrieved payments for ONE account'
+        });
+    })
+    .catch(function (err) {
+      console.log('problems with getting single payments data from database!')
+
+      return next(err);
+    });
 }
 
 function getPaymentsSummary(req, res, next){
@@ -453,6 +475,7 @@ module.exports = {
   getReservedStands: getReservedStands,
   getPayments: getPayments,
   getPaymentsSummary: getPaymentsSummary,
-  getSoldStands: getSoldStands
+  getSoldStands: getSoldStands,
+  getClientPaymentHistory: getClientPaymentHistory
 
 };
