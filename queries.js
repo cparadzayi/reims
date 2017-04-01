@@ -452,6 +452,7 @@ module.exports = {
   getAvailableStands: getAvailableStands,
   getReservedStands: getReservedStands,
   getPayments: getPayments,
+  getPaymentsSummary: getPaymentsSummary,
   getSoldStands: getSoldStands
 
 };
