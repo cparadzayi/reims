@@ -348,6 +348,51 @@ function getSoldStands(req, res, next){
 
 }
 
+function getPayments(req, res, next){
+
+  if (req.query.map)
+  {
+
+    var soldstands = "SELECT 'FeatureCollection' As type, array_to_json(array_agg(f)) As features FROM (SELECT 'Feature' As type, ST_AsGeoJSON(cadastre.geom)::json As geometry, row_to_json  ((SELECT l FROM (SELECT cadastre.standid standid, cities.name city_name, townships.name township_name,  soldstands.clientid clientid, clients.name firstname, clients.surname surname, clients.email email) AS l)) AS properties  FROM  cadastre INNER JOIN cities ON cities.cityid = cadastre.cityid INNER JOIN townships ON townships.townshipid = cadastre.townshipid INNER JOIN soldstands on soldstands.standid = cadastre.standid INNER JOIN clients ON soldstands.clientid = clients.clientid) As f";
+
+      db.any(soldstands)
+      .then(function (data){
+        res.status(200)
+        .header('Access-Control-Allow-Origin','*')
+        .json({
+          soldstandsmap: data
+
+        })
+      })
+      .catch(function(err){
+        console.log('Geojson trouble here !!')
+        if (err) {return next()}
+      })
+
+  }
+  else
+  {
+
+    var soldstands ="SELECT cadastre.standid standid, cities.name city_name, townships.name township_name,  soldstands.clientid clientid, soldstands.price price, receipts.amount amount, clients.name firstname, clients.surname surname, clients.email email FROM  cadastre INNER JOIN cities ON cities.cityid = cadastre.cityid INNER JOIN townships ON townships.townshipid = cadastre.townshipid INNER JOIN soldstands on soldstands.standid = cadastre.standid INNER JOIN clients ON soldstands.clientid = clients.clientid INNER JOIN receipts ON receipts.standid = cadastre.standid";
+
+    db.any(soldstands)
+    .then(function (data){
+      res.status(200)
+      .header('Access-Control-Allow-Origin','*')
+      .json({
+        soldstands: data
+
+      })
+    })
+    .catch(function(err){
+      console.log('problems with getting payments data from database!')
+      if (err) {return next()}
+    })
+
+  };
+
+}
+
 module.exports = {
   getAllclients: getAllclients,
   getSingleAccount: getSingleAccount,
@@ -361,6 +406,7 @@ module.exports = {
   getAllStands: getAllStands,
   getAvailableStands: getAvailableStands,
   getReservedStands: getReservedStands,
+  getPayments: getPayments,
   getSoldStands: getSoldStands
 
 };
