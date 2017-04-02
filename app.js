@@ -54,4 +54,8 @@ app.get('/cities', function (req, res) {
     res.render('cities');
 });
 
+app.get('/garagestores', function (req, res) {
+    res.render('garagestores');    
+});
+
 module.exports = app;
