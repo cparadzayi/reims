@@ -438,7 +438,7 @@ function getPaymentsSummary(req, res, next){
   else
   {
 
-    var paymentssummary ="SELECT cities.name city, townships.name township, receipts.standid, clients.surname, soldstands.price, sum(receipts.amount) totalpayment FROM receipts INNER JOIN cadastre ON receipts.standid = cadastre.standid INNER JOIN cities ON cadastre.cityid = cities.cityid INNER JOIN townships ON cadastre.townshipid = townships.townshipid INNER JOIN clients ON receipts.clientid = clients.clientid INNER JOIN soldstands ON cadastre.standid = soldstands.standid GROUP BY receipts.standid, cities.name, townships.name, clients.surname, soldstands.price";
+    var paymentssummary ="SELECT cities.name city, townships.name township, receipts.standid, clients.name, clients.surname, soldstands.price, sum(receipts.amount) totalpayment FROM receipts INNER JOIN cadastre ON receipts.standid = cadastre.standid INNER JOIN cities ON cadastre.cityid = cities.cityid INNER JOIN townships ON cadastre.townshipid = townships.townshipid INNER JOIN clients ON receipts.clientid = clients.clientid INNER JOIN soldstands ON cadastre.standid = soldstands.standid GROUP BY receipts.standid, cities.name, townships.name, clients.name, clients.surname, soldstands.price";
 
     db.any(paymentssummary)
     .then(function (data){
