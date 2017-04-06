@@ -12,7 +12,7 @@ var app = express();
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
-//app.set('view engine', 'jade');
+app.engine('html', require('ejs').renderFile);
 app.set('view engine', 'ejs');
 
 
@@ -53,9 +53,14 @@ app.get('/about', function (req, res) {
 app.get('/cities', function (req, res) {
     res.render('cities');
 });
+app.get('/pagination', function (req, res) {
+    res.render('pagination');
+});
 
 app.get('/garagestores', function (req, res) {
-    res.render('garagestores');    
+    res.render('garagestores');
 });
+
+
 
 module.exports = app;

@@ -36,7 +36,7 @@ function getAllclients(req, res, next) {
 
 function getSingleAccount(req, res, next) {
   var accountID = req.params.id;
-  console.log(accountID);
+  console.log()
   db.one('select * from clients where clientid = $1', accountID)
     .then(function (data) {
       res
@@ -397,7 +397,7 @@ function getPayments(req, res, next){
 function getClientPaymentHistory(req, res, next) {
   var client = req.params.id;
   console.log(client);
-  db.one('select * from receipts where clientid = $1', client)
+  db.any('select * from receipts where clientid = $1', client)
     .then(function (data) {
       res
         .status(200)
@@ -405,12 +405,10 @@ function getClientPaymentHistory(req, res, next) {
         .json({
           status: 'success',
           data: data,
-          messaccountnum: 'Retrieved payments for ONE account'
+          messaccountnum: 'Retrieved payments'
         });
     })
     .catch(function (err) {
-      console.log('problems with getting single payments data from database!')
-
       return next(err);
     });
 }
