@@ -42,7 +42,8 @@ app.use(function(err, req, res, next) {
 
   // render the error page
   res.status(err.status || 500);
-  res.render('error');
+  res.render('customError');
+
 });
 
 
@@ -55,7 +56,7 @@ app.get('/cities', function (req, res) {
 });
 
 app.get('/garagestores', function (req, res) {
-    res.render('garagestores');    
+    res.render('garagestores');
 });
 
 module.exports = app;

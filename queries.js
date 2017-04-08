@@ -55,9 +55,9 @@ function getSingleAccount(req, res, next) {
 
 function createAccount(req, res, next) {
   req.body.townshipid = parseInt(req.body.townshipid);
-  db.none('insert into clients(name, surname, accountnum, townshipid)' +
-      'values(${name}, ${surname}, ${accountnum}, ${townshipid})',
-    req.body)
+  db.none('insert into clients(name, surname, clientid, townshipid)' +
+      'values(${name}, ${surname}, ${clientid}, ${townshipid})',
+    req.query)
     .then(function () {
       res.status(200)
         .header('Access-Control-Allow-Origin','*')
@@ -67,6 +67,9 @@ function createAccount(req, res, next) {
         });
     })
     .catch(function (err) {
+      res.json({
+        query: req.query
+      })
       return next(err);
     });
 }
