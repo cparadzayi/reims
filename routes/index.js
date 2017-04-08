@@ -101,6 +101,7 @@ router.get('/api/stands', db.getAllStands);
 router.get('/api/stands/reservations', db.getReservedStands);
 router.get('/api/stands/sold', db.getSoldStands);
 router.get('/api/stands/available', db.getAvailableStands);
+router.get('/api/stands/available/:id', db.getAvailableStandDetails);
 
 // payments
 router.get('/api/payments/history', db.getPayments);
