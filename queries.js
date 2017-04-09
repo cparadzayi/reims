@@ -85,7 +85,7 @@ function getAllclients(req, res, next) {
             previous: (page == 1) ? null : `${url}?page=${page - 1}`,
             next: (page == rows) ? null : `${url}?page=${page + 1}`,
             first: `${url}?page=1`,
-            last: `${url}?page=${page}`
+            last: (page == totalPages) ? null : `${url}?page=${page}`
           }
         },
         data: clientsResults,
