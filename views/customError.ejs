@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <% include ../partials/head %>
+    <title>Error</title>
+  </head>
+  <body>
+    <h1><%= message %> </h1>
+    <span class="label label-danger label-xs"><%= error.status %></span>
+    <h3></h3>
+    <pre><%= error.stack %></pre>
+  </body>
+</html>

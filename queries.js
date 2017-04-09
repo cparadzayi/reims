@@ -19,17 +19,85 @@ var db = pg(herokuconnectionString);
 */
 // add query functions
 function getAllclients(req, res, next) {
-  db.any('select * from clients')
-    .then(function (data) {
+
+  /*
+    initialise with defaults
+ */
+  var rows = 0;     // total number of clients in the database
+  let page = 1;     // the current page
+  let limit = 50;   // the number of results to be return in a singe query
+  let offset = 0;   // the starting point in the database where limit is counted from
+
+  /*
+    if the limit query is available asign it offset
+  */
+  let requestLimit = req.query.limit
+  if (typeof requestLimit !== "undefined" && typeof requestLimit !== "null") {
+
+    requestLimit = Number(requestLimit);
+
+    // make sure the limit does not exceed 100 for perfomance
+    // and less than 1 so that we dont have that impossible limit of -1
+    if ( requestLimit > 100 ) {
+      limit = 100
+    } else if ( requestLimit < 1 ) {
+      // It wil fallback to the default value
+    } else {
+      limit = requestLimit
+    }
+  }
+
+  /*
+    if offset is available assing it to offset
+  */
+  if (req.query.page) {
+    page = Number(req.query.page)
+    offset = limit * ( page - 1 )
+  }
+
+  /*
+    perfom these asynchronous database queries synchronously because the
+    second query depends on the results of the first query
+  */
+  db.task(task => {
+     return task.batch([
+       task.any('SELECT COUNT(*) FROM clients'),
+       task.any('select * from clients limit $1 offset $2', [limit, offset]),
+     ]);
+   })
+   .then(data => {
+      rows = Number(data[0][0].count); // data[0] = result from the first query;
+      let clientsResults = data[1]
+      let url = 'http://localhost:3000/api/clients'
+      let totalPages = Math.ceil(rows/limit)
+      /*
+        format the response body
+      */
+      let responseBody = {
+        status: 'success',
+        meta:{
+          current_page: page,
+          next_page: page + 1,
+          previous_page: page - 1,
+          total_pages: totalPages ,
+          urls: {
+            current: `${url}?page=${page}`,
+            previous: (page == 1) ? null : `${url}?page=${page - 1}`,
+            next: (page == rows) ? null : `${url}?page=${page + 1}`,
+            first: `${url}?page=1`,
+            last: (page == totalPages) ? null : `${url}?page=${page}`
+          }
+        },
+        data: clientsResults,
+        messaccountnum: 'Retrieved ALL clients'
+      }
+
+      // Serve the results
       res.status(200)
         .header('Access-Control-Allow-Origin','*')
-        .json({
-          status: 'success',
-          data: data,
-          messaccountnum: 'Retrieved ALL clients'
-        });
-    })
-    .catch(function (err) {
+        .json(responseBody);
+   })
+    .catch(err => {
       return next(err);
     });
 }
@@ -55,9 +123,9 @@ function getSingleAccount(req, res, next) {
 
 function createAccount(req, res, next) {
   req.body.townshipid = parseInt(req.body.townshipid);
-  db.none('insert into clients(name, surname, accountnum, townshipid)' +
-      'values(${name}, ${surname}, ${accountnum}, ${townshipid})',
-    req.body)
+  db.none('insert into clients(name, surname, clientid, townshipid)' +
+      'values(${name}, ${surname}, ${clientid}, ${townshipid})',
+    req.query)
     .then(function () {
       res.status(200)
         .header('Access-Control-Allow-Origin','*')
@@ -67,6 +135,9 @@ function createAccount(req, res, next) {
         });
     })
     .catch(function (err) {
+      res.json({
+        query: req.query
+      })
       return next(err);
     });
 }
