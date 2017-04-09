@@ -29,6 +29,57 @@
 
           <div class="well">
               <h3>Zuva Garage Stores</h3>
+              <table id="example">
+                <thead>
+                  <tr><th class="site_name">Name</th><th>Url </th><th>Type</th><th>Last modified</th></tr>
+                </thead>
+                <tbody>
+                  <tr><td>SitePoint</td></tr>
+                  <tr><td>Learnable</td></tr>
+                  <tr><td>Flippa</td></tr>
+                  <tr><td>SitePoint1</td></tr>
+                  <tr><td>Learnable1</td></tr>
+                  <tr><td>Flippa1</td></tr>
+                  <tr><td>SitePoint2</td></tr>
+                  <tr><td>Learnable2</td></tr>
+                  <tr><td>Flippa2</td></tr>
+                  <tr><td>SitePoint3</td></tr>
+                  <tr><td>Learnable3</td></tr>
+                  <tr><td>Flippa3</td></tr>
+                </tbody>
+              </table>
+
+              <script>
+                $(function(){
+                  $("#example").dataTable({
+                      "aaData":[
+                        ["Sitepoint","http://sitepoint.com","Blog","2013-10-15 10:30:00"],
+                        ["Flippa","http://flippa.com","Marketplace","null"],
+                        ["99designs","http://99designs.com","Marketplace","null"],
+                        ["Learnable","http://learnable.com","Online courses","null"],
+                        ["Rubysource","http://rubysource.com","Blog","2013-01-10 12:00:00"]
+                      ],
+                      "aoColumnDefs":[{
+                            "sTitle":"Site name"
+                          , "aTargets": [ "site_name" ]
+                      },{
+                            "aTargets": [ 1 ]
+                          , "bSortable": false
+                          , "mRender": function ( url, type, full )  {
+                              return  '<a href="'+url+'">' + url + '</a>';
+                          }
+                      },{
+                            "aTargets":[ 3 ]
+                          , "sType": "date"
+                          , "mRender": function(date, type, full) {
+                              return (full[2] == "Blog")
+                                        ? new Date(date).toDateString()
+                                        : "N/A" ;
+                          }
+                      }]
+                    });
+                })
+              </script>
           </div>
 
       </div>

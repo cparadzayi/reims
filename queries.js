@@ -19,7 +19,9 @@ var db = pg(herokuconnectionString);
 */
 // add query functions
 function getAllclients(req, res, next) {
-  db.any('select * from clients')
+  //var firstname = req.query.firstname.toLowerCase();
+  db.any(`select * from clients`)
+//db.any(`select * from clients WHERE lower(name) LIKE '%${firstname}%' $1`)
     .then(function (data) {
       res.status(200)
         .header('Access-Control-Allow-Origin','*')
@@ -27,6 +29,35 @@ function getAllclients(req, res, next) {
           status: 'success',
           data: data,
           messaccountnum: 'Retrieved ALL clients'
+        });
+    })
+    .catch(function (err) {
+      return next(err);
+    });
+}
+
+function getSearchClientData(req, res, next) {
+  var firstname = req.query.firstname;
+  var surname = req.query.surname;
+  var id = req.query.id;
+  let sqlSearch = ''
+  if (firstname && surname && id) {
+    // sql to search with all
+  } else if (firstname && surname) {
+
+  } else if (firstname && !id && !surname) {
+    sqlSearch = `select * from clients WHERE lower(name) LIKE '%${firstname}%'`
+  }
+
+  //db.any(`select * from clients`)
+  db.any(sqlSearch)
+    .then(function (data) {
+      res.status(200)
+        .header('Access-Control-Allow-Origin','*')
+        .json({
+          status: 'success',
+          data: data,
+          messaccountnum: 'Retrieve by firstname'
         });
     })
     .catch(function (err) {
@@ -110,23 +141,6 @@ function getCitiesData(req, res, next){
   var citiesquery = "SELECT 'FeatureCollection' AS type, array_to_json(array_agg(f)) AS features FROM (SELECT 'Feature' AS type, ST_AsGeoJSON(lg.geom, 6)::json As geometry, row_to_json((SELECT l FROM (SELECT name, cityid) AS l)) AS properties FROM cities AS lg ) AS f";
 
   db.any(citiesquery)
-  .then(function (data) {
-      res.status(200)
-        .header('Access-Control-Allow-Origin','*')
-        .json({
-          status: 'success',
-          data: data,
-        });
-    })
-    .catch(function(err){
-      if (err) {return next()}
-    })
-}
-
-function getReservations(req, res, next){
-  var reservaationsQuery = "    SELECT 'FeatureCollection' AS type, array_to_json(array_agg(f)) AS features FROM (SELECT 'Feature' AS type, ST_AsGeoJSON(cadastre.geom, 6)::json As geometry, row_to_json((SELECT l FROM (SELECT reservations.standid,clients.clientid, clients.surname, clients.name) AS l)) AS properties FROM cadastre, reservations, clients WHERE   reservations.standid = cadastre.standid AND reservations.clientid = clients.clientid) AS f";
-
-  db.any(reservaationsQuery)
   .then(function (data) {
       res.status(200)
         .header('Access-Control-Allow-Origin','*')
@@ -550,12 +564,12 @@ function getPaymentsSummary(req, res, next){
 module.exports = {
   getAllclients: getAllclients,
   getSingleAccount: getSingleAccount,
+  getSearchClientData: getSearchClientData,
   createAccount: createAccount,
   updateAccount: updateAccount,
   removeAccount: removeAccount,
   dbConnection: db,
   getCitiesData: getCitiesData,
-  getReservations: getReservations,
   getReservedStandDetails: getReservedStandDetails,
   getCadastralData: getCadastralData,
   getAllStands: getAllStands,

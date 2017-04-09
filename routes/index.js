@@ -85,6 +85,8 @@ router.get('/pagination', function(req, res){
 
 //client apis
 router.get('/api/clients', db.getAllclients);
+router.get('/api/clients/search', db.getSearchClientData);
+
 router.get('/api/clients/:id', db.getSingleAccount);
 router.post('/api/clients', db.createAccount);
 router.put('/api/clients/:id', db.updateAccount);
@@ -94,7 +96,7 @@ router.delete('/api/clients/:id', db.removeAccount);
 router.get('/api/cities', db.getCitiesData);
 router.get('/api/cadastre', db.getCadastralData);
 
-router.get('/api/reservations', db.getReservations);
+//router.get('/api/reservations', db.getReservations);
 
 // stands api
 router.get('/api/stands', db.getAllStands);
