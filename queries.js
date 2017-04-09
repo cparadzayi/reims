@@ -79,7 +79,7 @@ function getAllclients(req, res, next) {
           current_page: page,
           next_page: page + 1,
           previous_page: page - 1,
-          total_pages: rows,
+          total_pages: Math.ceil(rows/limit),
           urls: {
             current: `${url}?page=${page}`,
             previous: (page == 1) ? null : `${url}?page=${page - 1}`,
