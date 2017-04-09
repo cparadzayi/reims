@@ -99,6 +99,8 @@ router.get('/api/reservations', db.getReservations);
 // stands api
 router.get('/api/stands', db.getAllStands);
 router.get('/api/stands/reservations', db.getReservedStands);
+router.get('/api/stands/reservations/:id', db.getReservedStandDetails);
+
 router.get('/api/stands/sold', db.getSoldStands);
 router.get('/api/stands/available', db.getAvailableStands);
 router.get('/api/stands/available/:id', db.getAvailableStandDetails);
