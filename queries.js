@@ -43,10 +43,16 @@ function getSearchClientData(req, res, next) {
   let sqlSearch = ''
   if (firstname && surname && id) {
     // sql to search with all
+    sqlSearch = `select * from clients WHERE lower(name) LIKE '%${firstname}%' OR lower(surname) LIKE '%${surname}%'  OR lower(clientid) LIKE '%${clientid}%'`
+
   } else if (firstname && surname) {
+    sqlSearch = `select * from clients WHERE lower(name) LIKE '%${firstname}%' OR lower(surname) LIKE '%${surname}%'`
 
   } else if (firstname && !id && !surname) {
     sqlSearch = `select * from clients WHERE lower(name) LIKE '%${firstname}%'`
+  } else if (surname && !id && !firstname) {
+    sqlSearch = `select * from clients WHERE lower(surname) LIKE '%${surname}%'`
+
   }
 
   //db.any(`select * from clients`)
