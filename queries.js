@@ -69,7 +69,7 @@ function getAllclients(req, res, next) {
       rows = Number(data[0][0].count); // data[0] = result from the first query;
       let clientsResults = data[1]
       let url = 'http://localhost:3000/api/clients'
-
+      let totalPages = Math.ceil(rows/limit)
       /*
         format the response body
       */
@@ -79,7 +79,7 @@ function getAllclients(req, res, next) {
           current_page: page,
           next_page: page + 1,
           previous_page: page - 1,
-          total_pages: Math.ceil(rows/limit),
+          total_pages: totalPages ,
           urls: {
             current: `${url}?page=${page}`,
             previous: (page == 1) ? null : `${url}?page=${page - 1}`,
