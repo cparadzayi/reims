@@ -101,6 +101,7 @@ router.get('/api/cadastre', db.getCadastralData);
 // stands api
 router.get('/api/stands', db.getAllStands);
 router.get('/api/stands/reservations', db.getReservedStands);
+router.get('/api/stands/reservations/search', db.getSearchReservationsData);
 router.get('/api/stands/reservations/:id', db.getReservedStandDetails);
 
 router.get('/api/stands/sold', db.getSoldStands);

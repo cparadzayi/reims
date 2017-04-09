@@ -39,11 +39,11 @@ function getAllclients(req, res, next) {
 function getSearchClientData(req, res, next) {
   var firstname = req.query.firstname;
   var surname = req.query.surname;
-  var id = req.query.id;
+  var id = req.query.clientid;
   let sqlSearch = ''
   if (firstname && surname && id) {
     // sql to search with all
-    sqlSearch = `select * from clients WHERE lower(name) LIKE '%${firstname}%' OR lower(surname) LIKE '%${surname}%'  OR lower(clientid) LIKE '%${clientid}%'`
+    sqlSearch = `select * from clients WHERE lower(name) LIKE '%${firstname}%' OR lower(surname) LIKE '%${surname}%'  OR lower(clientid) LIKE '%${id}%'`
 
   } else if (firstname && surname) {
     sqlSearch = `select * from clients WHERE lower(name) LIKE '%${firstname}%' OR lower(surname) LIKE '%${surname}%'`
@@ -53,6 +53,9 @@ function getSearchClientData(req, res, next) {
   } else if (surname && !id && !firstname) {
     sqlSearch = `select * from clients WHERE lower(surname) LIKE '%${surname}%'`
 
+  }else if (id && !surname && !firstname) {
+    sqlSearch = `select * from clients WHERE lower(clientid) LIKE '%${id}%'`
+
   }
 
   //db.any(`select * from clients`)
@@ -61,9 +64,7 @@ function getSearchClientData(req, res, next) {
       res.status(200)
         .header('Access-Control-Allow-Origin','*')
         .json({
-          status: 'success',
-          data: data,
-          messaccountnum: 'Retrieve by firstname'
+          data: data
         });
     })
     .catch(function (err) {
@@ -280,8 +281,6 @@ function getReservedStandDetails(req, res, next){
 
 var reservedstand = req.params.id;
 
-console.log('Reserved stand: ', reservedstand);
-
       db.one("SELECT 'FeatureCollection' As type, array_to_json(array_agg(f)) As features FROM (SELECT 'Feature' As type, ST_AsGeoJSON(cadastre.geom)::json As geometry, row_to_json  ((SELECT l FROM (SELECT clients.name firstname, clients.surname, clients.address, clients.email, cadastre.dsg_num stand, townships.name township, cities.name city, reservations.reservationdate AS reservationdate, reservations.reservationdate+period*INTERVAL'1 day' AS expirydate) AS l)) AS properties  FROM cadastre, reservations, clients, townships, cities WHERE clients.clientid = reservations.clientid AND cadastre.standid = reservations.standid AND cadastre.townshipid =  townships.townshipid AND cities.cityid = cadastre.cityid AND (reservationdate+period*interval '0 day', reservationdate+period*interval '1 day') OVERLAPS (reservationdate+period*interval '1 day', LOCALTIMESTAMP) AND reservations.standid = $1) As f", reservedstand)
       .then(function (data){
         res.status(200)
@@ -301,7 +300,7 @@ console.log('Reserved stand: ', reservedstand);
   {
     var reservedstand = req.params.id;
 
-    db.one("SELECT 'FeatureCollection' As type, array_to_json(array_agg(f)) As features FROM (SELECT 'Feature' As type, ST_AsGeoJSON(cadastre.geom)::json As geometry, row_to_json  ((SELECT l FROM (SELECT clients.name firstname, clients.surname, clients.address, clients.email, cadastre.dsg_num stand, townships.name township, cities.name city, reservations.reservationdate AS reservationdate, reservations.reservationdate+period*INTERVAL'1 day' AS expirydate) AS l)) AS properties  FROM cadastre, reservations, clients, townships, cities WHERE clients.clientid = reservations.clientid AND cadastre.standid = reservations.standid AND cadastre.townshipid =  townships.townshipid AND cities.cityid = cadastre.cityid AND (reservationdate+period*interval '0 day', reservationdate+period*interval '1 day') OVERLAPS (reservationdate+period*interval '1 day', LOCALTIMESTAMP) AND reservations.standid = $1) As f", reservedstand)
+    db.one("SELECT clients.name firstname, clients.surname, clients.address, clients.email, cadastre.dsg_num stand, townships.name township, cities.name city, reservations.reservationdate AS reservationdate, reservations.reservationdate+period*INTERVAL'1 day' AS expirydate FROM cadastre, reservations, clients, townships, cities WHERE clients.clientid = reservations.clientid AND cadastre.standid = reservations.standid AND cadastre.townshipid =  townships.townshipid AND cities.cityid = cadastre.cityid AND (reservationdate+period*interval '0 day', reservationdate+period*interval '1 day') OVERLAPS (reservationdate+period*interval '1 day', LOCALTIMESTAMP) AND reservations.standid = $1", reservedstand)
     .then(function (data){
       res.status(200)
       .header('Access-Control-Allow-Origin','*')
@@ -317,6 +316,42 @@ console.log('Reserved stand: ', reservedstand);
 
   };
 
+}
+
+function getSearchReservationsData(req, res, next) {
+  var datereserved = req.query.reservationdate;
+  var id = req.query.clientid;
+  var stand = req.query.standid;
+  let sqlSearch = ''
+  if (datereserved && id && stand) {
+    // sql to search with all
+    sqlSearch = `select reservations.standid, reservations.clientid, reservations.reservationdate, clients.name firstname from reservations, clients WHERE reservationdate = '${datereserved}' AND lower(reservations.clientid) LIKE '%${id}%'  AND lower(reservations.standid) LIKE '%${stand}%' AND clients.clientid = reservations.clientid`
+
+  } else if (id && stand) {
+    sqlSearch = `select * from reservations WHERE lower(clientid) LIKE '%${id}%' OR lower(standid) LIKE '%${stand}%'`
+
+  } else if (datereserved && !id && !stand) {
+    sqlSearch = `select * from reservations WHERE lower(reservationdate) LIKE '%${datereserved}%'`
+  } else if (stand && !id && !datereserved) {
+    sqlSearch = `select * from reservations WHERE lower(standid) LIKE '%${stand}%'`
+
+  }else if (id && !datereserved && !stand) {
+    sqlSearch = `select * from reservations WHERE lower(clientid) LIKE '%${id}%'`
+
+  }
+
+  //db.any(`select * from clients`)
+  db.any(sqlSearch)
+    .then(function (data) {
+      res.status(200)
+        .header('Access-Control-Allow-Origin','*')
+        .json({
+          data: data
+        });
+    })
+    .catch(function (err) {
+      return next(err);
+    });
 }
 
 function getAvailableStands(req, res, next){
@@ -577,6 +612,7 @@ module.exports = {
   dbConnection: db,
   getCitiesData: getCitiesData,
   getReservedStandDetails: getReservedStandDetails,
+  getSearchReservationsData: getSearchReservationsData,
   getCadastralData: getCadastralData,
   getAllStands: getAllStands,
   getAvailableStands: getAvailableStands,
