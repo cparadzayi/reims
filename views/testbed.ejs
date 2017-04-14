@@ -1,0 +1,35 @@
+function getSearchReservationsData(req, res, next) {
+  var reservationdate = req.query.reservationdate;
+  var id = req.query.clientid;
+  var stand = req.query.standid;
+  let sqlSearch = ''
+  if (reservationdate && id && stand) {
+    // sql to search with all
+    sqlSearch = `select * from reservations WHERE lower(reservationdate) LIKE '%${reservationdate}%' OR lower(clientid) LIKE '%${id}%'  OR lower(standid) LIKE '%${stand}%'`
+
+  } else if (id && stand) {
+    sqlSearch = `select * from reservations WHERE lower(clientid) LIKE '%${id}%' OR lower(standid) LIKE '%${stand}%'`
+
+  } else if (reservationdate && !id && !stand) {
+    sqlSearch = `select * from reservations WHERE lower(reservationdate) LIKE '%${reservationdate}%'`
+  } else if (stand && !id && !reservationdate) {
+    sqlSearch = `select * from reservations WHERE lower(standid) LIKE '%${stand}%'`
+
+  }else if (id && !reservationdate && !stand) {
+    sqlSearch = `select * from clients WHERE lower(clientid) LIKE '%${id}%'`
+
+  }
+
+  //db.any(`select * from clients`)
+  db.any(sqlSearch)
+    .then(function (data) {
+      res.status(200)
+        .header('Access-Control-Allow-Origin','*')
+        .json({
+          data: data
+        });
+    })
+    .catch(function (err) {
+      return next(err);
+    });
+}

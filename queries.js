@@ -1,4 +1,5 @@
 var promise = require('bluebird');
+var moment = require('moment');
 
 var options = {
   // Initialization Options
@@ -6,6 +7,20 @@ var options = {
 };
 
 var pgp = require('pg-promise')(options);
+var types = pgp.pg.types;
+// 1114 is OID for timestamp in Postgres
+// return string as is
+//types.setTypeParser(1114, str => moment.utc(str).format());
+// 1114 is OID for timestamp in Postgres
+// return string as is
+//types.setTypeParser(1114, str => str);
+
+//The incoming timestamps without timezone are parsed in local time instead of UTC -- I'd call this a bug in node-postgres. Anyway, you can override it to do the right thing by adding the following code:
+
+types.setTypeParser(1114, function(stringValue) {
+  //console.log("Date from database: ", stringValue);
+  return new Date(Date.parse(stringValue + "+0000"));
+})
 
 // move the two database connection options into the aoo,js and set development and production environments respectiveky
 //var connectionString = 'postgres://postgres:admin@localhost:5432/reimsdb'
@@ -183,7 +198,7 @@ function getAllStands(req, res, next){
   if (req.query.map)
   {
 
-    var allStandsSql = "SELECT 'FeatureCollection' AS type, array_to_json(array_agg(f)) AS features FROM (SELECT 'Feature' AS type, ST_AsGeoJSON(lg.geom, 6)::json As geometry, row_to_json((SELECT l FROM (SELECT standid, cityid, townshipid) AS l)) AS properties FROM cadastre AS lg ) AS f";
+    var allStandsSql = "SELECT 'FeatureCollection' AS type, array_to_json(array_agg(f)) AS features FROM (SELECT 'Feature' AS type, ST_AsGeoJSON(lg.geom, 6)::json As geometry, row_to_json((SELECT l FROM (SELECT lg.standid, c.name AS city, t.name as township) AS l)) AS properties FROM cadastre AS lg, cities as c, townships as t WHERE lg.townshipid = t.townshipid AND lg.cityid = c.cityid ) AS f";
 
     db.any(allStandsSql)
       .then(function (data){
@@ -232,7 +247,7 @@ function getReservedStands(req, res, next){
   {
 
 
-    var reservedstands = "SELECT 'FeatureCollection' As type, array_to_json(array_agg(f)) As features FROM (SELECT 'Feature' As type, ST_AsGeoJSON(cadastre.geom)::json As geometry, row_to_json  ((SELECT l FROM (SELECT cadastre.standid AS standid, cities.name AS city, townships.name AS township, reservations.reservationdate AS reservationdate, reservations.reservationdate+period*INTERVAL'1 day' AS expirydate) AS l)) AS properties  FROM cadastre, cities, townships, reservations WHERE cadastre.standid IN (SELECT standid FROM reservations WHERE (reservationdate+period*interval '0 day', reservationdate+period*interval '1 day') OVERLAPS (reservationdate+period*interval '1 day', LOCALTIMESTAMP)) AND cadastre.standid = reservations.standid AND cadastre.cityid = cities.cityid AND cadastre.townshipid = townships.townshipid) As f";
+    var reservedstands = "SELECT 'FeatureCollection' As type, array_to_json(array_agg(f)) As features FROM (SELECT 'Feature' As type, ST_AsGeoJSON(cadastre.geom)::json As geometry, row_to_json  ((SELECT l FROM (SELECT cadastre.standid AS standid, cities.name AS city, townships.name AS township, reservations.reservationdate AT TIME ZONE 'GMT-2' AS reservationdate, reservations.reservationdate+period*INTERVAL'1 day' AS expirydate) AS l)) AS properties  FROM cadastre, cities, townships, reservations WHERE cadastre.standid IN (SELECT standid FROM reservations WHERE (reservationdate+period*interval '0 day', reservationdate+period*interval '1 day') OVERLAPS (reservationdate+period*interval '1 day', LOCALTIMESTAMP)) AND cadastre.standid = reservations.standid AND cadastre.cityid = cities.cityid AND cadastre.townshipid = townships.townshipid) As f";
 
       db.any(reservedstands)
       .then(function (data){
@@ -252,9 +267,17 @@ function getReservedStands(req, res, next){
   else
   {
 
-    var reservedstands ="SELECT cadastre.standid AS standid, cities.name AS city, townships.name AS township, reservations.reservationdate AS reservationdate, reservations.reservationdate+period*INTERVAL'1 day' AS expirydate  FROM cadastre, cities, townships, reservations WHERE cadastre.standid IN (SELECT standid FROM reservations WHERE (reservationdate+period*interval '0 day', reservationdate+period*interval '1 day') OVERLAPS (reservationdate+period*interval '1 day', LOCALTIMESTAMP)) AND cadastre.standid = reservations.standid AND cadastre.cityid = cities.cityid AND cadastre.townshipid = townships.townshipid";
+    //var now = moment().toISOString(); // this will get the current date & time.
+    //var day = moment("Jul 18, 2013"); // accepting string date.
 
-    //var leakagequery = "SELECT 'FeatureCollection' AS type, array_to_json(array_agg(f)) AS features FROM (SELECT 'Feature' AS type,   ST_AsGeoJSON(leakages.geom, 6)::json As geometry,    row_to_json((SELECT l FROM (SELECT townships.name AS townshipname,leakages.source AS source, leakages.status AS status, leakages.intensity AS intensity, leakages.datereported as datereported, leakages.recorder as reporter, townships.geom) AS l)) AS properties FROM townships, leakages     WHERE  ST_Within(leakages.geom, townships.geom)   GROUP BY leakages.geom,townships.name ,leakages.source , leakages.status , leakages.intensity,leakages.recorder, leakages.datereported,townships.geom ) AS f";
+  //var now =   moment([2017, 0, 29]).fromNow(); // 4 years ago
+  //var day = moment([2007, 0, 29]).fromNow(true); // 4 years
+
+    //console.log("current date: ", now);
+    //console.log("2013 date: ", day);
+
+  //  added time zone (GMT-2) to the database time so that its not always one day behind
+    var reservedstands ="SELECT cadastre.standid AS standid, cities.name AS city, townships.name AS township, reservations.reservationdate AT TIME ZONE 'GMT-2' AS reservationdate, reservations.reservationdate+period*INTERVAL'1 day' AS expirydate  FROM cadastre, cities, townships, reservations WHERE cadastre.standid IN (SELECT standid FROM reservations WHERE (reservationdate+period*interval '0 day', reservationdate+period*interval '1 day') OVERLAPS (reservationdate+period*interval '1 day', LOCALTIMESTAMP)) AND cadastre.standid = reservations.standid AND cadastre.cityid = cities.cityid AND cadastre.townshipid = townships.townshipid";
 
     db.any(reservedstands)
     .then(function (data){
@@ -264,6 +287,8 @@ function getReservedStands(req, res, next){
         reservedstands: data
 
       })
+      //var parseddata = JSON.parse(data);
+      //console.log(parseddata.reservationdate);
     })
     .catch(function(err){
       console.log('problems with getting data from database!')
@@ -279,7 +304,6 @@ function getReservedStandDetails(req, res, next){
   if (req.query.map)
   {
 
-var reservedstand = req.params.id;
 
       db.one("SELECT 'FeatureCollection' As type, array_to_json(array_agg(f)) As features FROM (SELECT 'Feature' As type, ST_AsGeoJSON(cadastre.geom)::json As geometry, row_to_json  ((SELECT l FROM (SELECT clients.name firstname, clients.surname, clients.address, clients.email, cadastre.dsg_num stand, townships.name township, cities.name city, reservations.reservationdate AS reservationdate, reservations.reservationdate+period*INTERVAL'1 day' AS expirydate) AS l)) AS properties  FROM cadastre, reservations, clients, townships, cities WHERE clients.clientid = reservations.clientid AND cadastre.standid = reservations.standid AND cadastre.townshipid =  townships.townshipid AND cities.cityid = cadastre.cityid AND (reservationdate+period*interval '0 day', reservationdate+period*interval '1 day') OVERLAPS (reservationdate+period*interval '1 day', LOCALTIMESTAMP) AND reservations.standid = $1) As f", reservedstand)
       .then(function (data){

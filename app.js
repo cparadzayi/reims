@@ -5,6 +5,8 @@ var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 
+var moment = require('moment');
+
 var index = require('./routes/index');
 var users = require('./routes/users');
 
@@ -33,6 +35,14 @@ app.use(function(req, res, next) {
   err.status = 404;
   next(err);
 });
+
+// From date to moment
+var wrapped = moment(new Date());
+console.log(wrapped);
+
+// From moment to date 
+var date = wrapped.toDate();
+console.log(date);
 
 // error handler
 app.use(function(err, req, res, next) {
