@@ -247,7 +247,7 @@ function getReservedStands(req, res, next){
   {
 
 
-    var reservedstands = "SELECT 'FeatureCollection' As type, array_to_json(array_agg(f)) As features FROM (SELECT 'Feature' As type, ST_AsGeoJSON(cadastre.geom)::json As geometry, row_to_json  ((SELECT l FROM (SELECT cadastre.standid AS standid, cities.name AS city, townships.name AS township, reservations.reservationdate AT TIME ZONE 'GMT-2' AS reservationdate, reservations.reservationdate+period*INTERVAL'1 day' AS expirydate) AS l)) AS properties  FROM cadastre, cities, townships, reservations WHERE cadastre.standid IN (SELECT standid FROM reservations WHERE (reservationdate+period*interval '0 day', reservationdate+period*interval '1 day') OVERLAPS (reservationdate+period*interval '1 day', LOCALTIMESTAMP)) AND cadastre.standid = reservations.standid AND cadastre.cityid = cities.cityid AND cadastre.townshipid = townships.townshipid) As f";
+    var reservedstands = "SELECT 'FeatureCollection' As type, array_to_json(array_agg(f)) As features FROM (SELECT 'Feature' As type, ST_AsGeoJSON(cadastre.geom)::json As geometry, row_to_json  ((SELECT l FROM (SELECT cadastre.standid AS standid,  townships.name AS township, cities.name AS city, reservations.reservationdate AT TIME ZONE 'GMT-2' AS reservationdate, reservations.reservationdate+period*INTERVAL'1 day' AS expirydate, clients.name AS firstname, clients.surname AS surname) AS l)) AS properties  FROM cadastre, cities, townships, reservations, clients WHERE cadastre.standid IN (SELECT standid FROM reservations WHERE (reservationdate+period*interval '0 day', reservationdate+period*interval '1 day') OVERLAPS (reservationdate+period*interval '1 day', LOCALTIMESTAMP)) AND cadastre.standid = reservations.standid AND cadastre.cityid = cities.cityid AND cadastre.townshipid = townships.townshipid AND reservations.clientid = clients.clientid) As f";
 
       db.any(reservedstands)
       .then(function (data){
@@ -267,17 +267,8 @@ function getReservedStands(req, res, next){
   else
   {
 
-    //var now = moment().toISOString(); // this will get the current date & time.
-    //var day = moment("Jul 18, 2013"); // accepting string date.
-
-  //var now =   moment([2017, 0, 29]).fromNow(); // 4 years ago
-  //var day = moment([2007, 0, 29]).fromNow(true); // 4 years
-
-    //console.log("current date: ", now);
-    //console.log("2013 date: ", day);
-
   //  added time zone (GMT-2) to the database time so that its not always one day behind
-    var reservedstands ="SELECT cadastre.standid AS standid, cities.name AS city, townships.name AS township, reservations.reservationdate AT TIME ZONE 'GMT-2' AS reservationdate, reservations.reservationdate+period*INTERVAL'1 day' AS expirydate  FROM cadastre, cities, townships, reservations WHERE cadastre.standid IN (SELECT standid FROM reservations WHERE (reservationdate+period*interval '0 day', reservationdate+period*interval '1 day') OVERLAPS (reservationdate+period*interval '1 day', LOCALTIMESTAMP)) AND cadastre.standid = reservations.standid AND cadastre.cityid = cities.cityid AND cadastre.townshipid = townships.townshipid";
+    var reservedstands ="SELECT cadastre.standid AS standid, townships.name AS township, cities.name AS city,  reservations.reservationdate AT TIME ZONE 'GMT-2' AS reservationdate, reservations.reservationdate+period*INTERVAL'1 day' AS expirydate, clients.name AS firstname, clients.surname AS surname FROM cadastre, cities, townships, reservations, clients WHERE cadastre.standid IN (SELECT standid FROM reservations WHERE (reservationdate+period*interval '0 day', reservationdate+period*interval '1 day') OVERLAPS (reservationdate+period*interval '1 day', LOCALTIMESTAMP)) AND cadastre.standid = reservations.standid AND cadastre.cityid = cities.cityid AND cadastre.townshipid = townships.townshipid AND reservations.clientid = clients.clientid";
 
     db.any(reservedstands)
     .then(function (data){
@@ -304,8 +295,9 @@ function getReservedStandDetails(req, res, next){
   if (req.query.map)
   {
 
+    var reservedstand = req.params.id;
 
-      db.one("SELECT 'FeatureCollection' As type, array_to_json(array_agg(f)) As features FROM (SELECT 'Feature' As type, ST_AsGeoJSON(cadastre.geom)::json As geometry, row_to_json  ((SELECT l FROM (SELECT clients.name firstname, clients.surname, clients.address, clients.email, cadastre.dsg_num stand, townships.name township, cities.name city, reservations.reservationdate AS reservationdate, reservations.reservationdate+period*INTERVAL'1 day' AS expirydate) AS l)) AS properties  FROM cadastre, reservations, clients, townships, cities WHERE clients.clientid = reservations.clientid AND cadastre.standid = reservations.standid AND cadastre.townshipid =  townships.townshipid AND cities.cityid = cadastre.cityid AND (reservationdate+period*interval '0 day', reservationdate+period*interval '1 day') OVERLAPS (reservationdate+period*interval '1 day', LOCALTIMESTAMP) AND reservations.standid = $1) As f", reservedstand)
+      db.oneOrNone  ("SELECT 'FeatureCollection' As type, array_to_json(array_agg(f)) As features FROM (SELECT 'Feature' As type, ST_AsGeoJSON(cadastre.geom)::json As geometry, row_to_json  ((SELECT l FROM (SELECT clients.name firstname, clients.surname, clients.address, clients.email, cadastre.dsg_num stand, townships.name township, cities.name city, reservations.reservationdate AS reservationdate, reservations.reservationdate+period*INTERVAL'1 day' AS expirydate) AS l)) AS properties  FROM cadastre, reservations, clients, townships, cities WHERE clients.clientid = reservations.clientid AND cadastre.standid = reservations.standid AND cadastre.townshipid =  townships.townshipid AND cities.cityid = cadastre.cityid AND (reservationdate+period*interval '0 day', reservationdate+period*interval '1 day') OVERLAPS (reservationdate+period*interval '1 day', LOCALTIMESTAMP) AND reservations.standid = $1) As f", reservedstand)
       .then(function (data){
         res.status(200)
         .header('Access-Control-Allow-Origin','*')
@@ -324,7 +316,7 @@ function getReservedStandDetails(req, res, next){
   {
     var reservedstand = req.params.id;
 
-    db.one("SELECT clients.name firstname, clients.surname, clients.address, clients.email, cadastre.dsg_num stand, townships.name township, cities.name city, reservations.reservationdate AS reservationdate, reservations.reservationdate+period*INTERVAL'1 day' AS expirydate FROM cadastre, reservations, clients, townships, cities WHERE clients.clientid = reservations.clientid AND cadastre.standid = reservations.standid AND cadastre.townshipid =  townships.townshipid AND cities.cityid = cadastre.cityid AND (reservationdate+period*interval '0 day', reservationdate+period*interval '1 day') OVERLAPS (reservationdate+period*interval '1 day', LOCALTIMESTAMP) AND reservations.standid = $1", reservedstand)
+    db.oneOrNone("SELECT clients.name firstname, clients.surname, clients.address, clients.email, cadastre.dsg_num stand, townships.name township, cities.name city, reservations.reservationdate AT TIME ZONE 'GMT-2' AS reservationdate, reservations.reservationdate+period*INTERVAL'1 day' AS expirydate FROM cadastre, reservations, clients, townships, cities WHERE clients.clientid = reservations.clientid AND cadastre.standid = reservations.standid AND cadastre.townshipid =  townships.townshipid AND cities.cityid = cadastre.cityid AND (reservationdate+period*interval '0 day', reservationdate+period*interval '1 day') OVERLAPS (reservationdate+period*interval '1 day', LOCALTIMESTAMP) AND reservations.standid = $1", reservedstand)
     .then(function (data){
       res.status(200)
       .header('Access-Control-Allow-Origin','*')
@@ -332,6 +324,7 @@ function getReservedStandDetails(req, res, next){
         reservedstanddata: data
 
       })
+      console.log('Data from DB: ', data);
     })
     .catch(function(err){
       console.log('problems with getting data from database!', err)
@@ -346,21 +339,31 @@ function getSearchReservationsData(req, res, next) {
   var datereserved = req.query.reservationdate;
   var id = req.query.clientid;
   var stand = req.query.standid;
-  let sqlSearch = ''
+  var reservationperiod = parseInt(req.query.period);
+  let sqlSearch = '';
+
+  // console.log("reservation period: ", reservationperiod, ' of type', typeof reservationperiod);
+
   if (datereserved && id && stand) {
     // sql to search with all
-    sqlSearch = `select reservations.standid, reservations.clientid, reservations.reservationdate, clients.name firstname from reservations, clients WHERE reservationdate = '${datereserved}' AND lower(reservations.clientid) LIKE '%${id}%'  AND lower(reservations.standid) LIKE '%${stand}%' AND clients.clientid = reservations.clientid`
+  // sqlSearch = `select reservations.standid, reservations.clientid, reservations.reservationdate AT TIME ZONE 'GMT-2' AS reservationdate, clients.name firstname, clients.surname as surname from reservations, clients WHERE reservationdate = '%${datereserved}%' AND reservations.clientid LIKE '%${id}%'  AND lower(reservations.standid) LIKE '%${stand}%' AND clients.clientid = reservations.clientid`
+  sqlSearch = `SELECT cadastre.standid AS standid, townships.name AS township, cities.name AS city,  reservations.reservationdate AT TIME ZONE 'GMT-2' AS reservationdate, reservations.reservationdate+period*INTERVAL'1 day' AS expirydate, clients.name AS firstname, clients.surname AS surname FROM cadastre, cities, townships, reservations, clients WHERE cadastre.standid IN (SELECT standid FROM reservations WHERE (reservationdate+period*interval '0 day', reservationdate+period*interval '1 day') OVERLAPS (reservationdate+period*interval '1 day', LOCALTIMESTAMP)) AND cadastre.standid = reservations.standid AND cadastre.cityid = cities.cityid AND cadastre.townshipid = townships.townshipid AND reservations.clientid = clients.clientid AND reservationdate = '%${datereserved}%' AND reservations.clientid LIKE '%${id}%'  AND reservations.standid LIKE '%${stand}%'`
 
-  } else if (id && stand) {
-    sqlSearch = `select * from reservations WHERE lower(clientid) LIKE '%${id}%' OR lower(standid) LIKE '%${stand}%'`
+  } else if (datereserved && id) {
+    sqlSearch = `SELECT cadastre.standid AS standid, townships.name AS township, cities.name AS city,  reservations.reservationdate AT TIME ZONE 'GMT-2' AS reservationdate, reservations.reservationdate+period*INTERVAL'1 day' AS expirydate, clients.name AS firstname, clients.surname AS surname FROM cadastre, cities, townships, reservations, clients WHERE cadastre.standid IN (SELECT standid FROM reservations WHERE (reservationdate+period*interval '0 day', reservationdate+period*interval '1 day') OVERLAPS (reservationdate+period*interval '1 day', LOCALTIMESTAMP)) AND cadastre.standid = reservations.standid AND cadastre.cityid = cities.cityid AND cadastre.townshipid = townships.townshipid AND reservations.clientid = clients.clientid AND reservationdate = '%${datereserved}%' AND reservations.clientid LIKE '%${id}%'`
+  }else if (id && stand) {
+    sqlSearch = `SELECT cadastre.standid AS standid, townships.name AS township, cities.name AS city,  reservations.reservationdate AT TIME ZONE 'GMT-2' AS reservationdate, reservations.reservationdate+period*INTERVAL'1 day' AS expirydate, clients.name AS firstname, clients.surname AS surname FROM cadastre, cities, townships, reservations, clients WHERE cadastre.standid IN (SELECT standid FROM reservations WHERE (reservationdate+period*interval '0 day', reservationdate+period*interval '1 day') OVERLAPS (reservationdate+period*interval '1 day', LOCALTIMESTAMP)) AND cadastre.standid = reservations.standid AND cadastre.cityid = cities.cityid AND cadastre.townshipid = townships.townshipid AND reservations.clientid = clients.clientid AND reservations.clientid LIKE '%${id}%' AND reservations.standid LIKE '%${stand}%'`
 
   } else if (datereserved && !id && !stand) {
-    sqlSearch = `select * from reservations WHERE lower(reservationdate) LIKE '%${datereserved}%'`
+    sqlSearch = `SELECT cadastre.standid AS standid, townships.name AS township, cities.name AS city,  reservations.reservationdate AT TIME ZONE 'GMT-2' AS reservationdate, reservations.reservationdate+period*INTERVAL'1 day' AS expirydate, clients.name AS firstname, clients.surname AS surname FROM cadastre, cities, townships, reservations, clients WHERE cadastre.standid IN (SELECT standid FROM reservations WHERE (reservationdate+period*interval '0 day', reservationdate+period*interval '1 day') OVERLAPS (reservationdate+period*interval '1 day', LOCALTIMESTAMP)) AND cadastre.standid = reservations.standid AND cadastre.cityid = cities.cityid AND cadastre.townshipid = townships.townshipid AND reservations.clientid = clients.clientid AND reservationdate = '%${datereserved}%'`
   } else if (stand && !id && !datereserved) {
-    sqlSearch = `select * from reservations WHERE lower(standid) LIKE '%${stand}%'`
+    sqlSearch = `SELECT cadastre.standid AS standid, townships.name AS township, cities.name AS city,  reservations.reservationdate AT TIME ZONE 'GMT-2' AS reservationdate, reservations.reservationdate+period*INTERVAL'1 day' AS expirydate, clients.name AS firstname, clients.surname AS surname FROM cadastre, cities, townships, reservations, clients WHERE cadastre.standid IN (SELECT standid FROM reservations WHERE (reservationdate+period*interval '0 day', reservationdate+period*interval '1 day') OVERLAPS (reservationdate+period*interval '1 day', LOCALTIMESTAMP)) AND cadastre.standid = reservations.standid AND cadastre.cityid = cities.cityid AND cadastre.townshipid = townships.townshipid AND reservations.clientid = clients.clientid AND reservations.standid LIKE '%${stand}%'`
+
+  }else if (reservationperiod && !id && !datereserved) {
+    sqlSearch = `SELECT cadastre.standid AS standid, townships.name AS township, cities.name AS city,  reservations.reservationdate AT TIME ZONE 'GMT-2' AS reservationdate, reservations.reservationdate+period*INTERVAL'1 day' AS expirydate, clients.name AS firstname, clients.surname AS surname FROM cadastre, cities, townships, reservations, clients WHERE cadastre.standid IN (SELECT standid FROM reservations WHERE (reservationdate+period*interval '0 day', reservationdate+period*interval '1 day') OVERLAPS (reservationdate+period*interval '1 day', LOCALTIMESTAMP)) AND cadastre.standid = reservations.standid AND cadastre.cityid = cities.cityid AND cadastre.townshipid = townships.townshipid AND reservations.clientid = clients.clientid AND period = '${reservationperiod}'`
 
   }else if (id && !datereserved && !stand) {
-    sqlSearch = `select * from reservations WHERE lower(clientid) LIKE '%${id}%'`
+    sqlSearch = `SELECT cadastre.standid AS standid, townships.name AS township, cities.name AS city,  reservations.reservationdate AT TIME ZONE 'GMT-2' AS reservationdate, reservations.reservationdate+period*INTERVAL'1 day' AS expirydate, clients.name AS firstname, clients.surname AS surname FROM cadastre, cities, townships, reservations, clients WHERE cadastre.standid IN (SELECT standid FROM reservations WHERE (reservationdate+period*interval '0 day', reservationdate+period*interval '1 day') OVERLAPS (reservationdate+period*interval '1 day', LOCALTIMESTAMP)) AND cadastre.standid = reservations.standid AND cadastre.cityid = cities.cityid AND cadastre.townshipid = townships.townshipid AND reservations.clientid = clients.clientid AND  reservations.clientid = '${id}'`
 
   }
 
