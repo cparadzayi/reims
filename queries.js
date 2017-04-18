@@ -601,8 +601,28 @@ function postNewReservation(req, res, next) {
     });
 }
 
+function postNewClient(req, res, next) {
+  req.body.townshipid = parseInt(req.body.townshipid);
+  req.body.cityid = parseInt(req.body.cityid);
+ console.log(req.body);
+  db.none('insert into clients(name, surname, townshipid, cityid, clientid, address, email, password)' +
+      'values(${name}, ${surname}, ${townshipid}, ${cityid}, ${clientid}, ${address}, ${email}, ${password})',
+    req.body)
+    .then(function () {
+      res.status(200)
+        .json({
+          status: 'success',
+          message: 'Added one client'
+        });
+    })
+    .catch(function (err) {
+      return next(err);
+    });
+}
+
 module.exports = {
   getAllclients: getAllclients,
+  postNewClient: postNewClient,
   getSingleAccount: getSingleAccount,
   getSearchClientData: getSearchClientData,
   createAccount: createAccount,

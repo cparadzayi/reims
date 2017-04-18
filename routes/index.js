@@ -84,6 +84,9 @@ router.get('/pagination', function(req, res){
 /*Api registrations*/
 
 //client apis
+// create reservation here
+router.post('/api/clients', db.postNewClient);
+
 router.get('/api/clients', db.getAllclients);
 router.get('/api/clients/search', db.getSearchClientData);
 
