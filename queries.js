@@ -290,51 +290,6 @@ function getReservedStands(req, res, next){
 
 }
 
-function getReservedStandDetails(req, res, next){
-
-  if (req.query.map)
-  {
-
-    var reservedstand = req.params.id;
-
-      db.oneOrNone  ("SELECT 'FeatureCollection' As type, array_to_json(array_agg(f)) As features FROM (SELECT 'Feature' As type, ST_AsGeoJSON(cadastre.geom)::json As geometry, row_to_json  ((SELECT l FROM (SELECT clients.name firstname, clients.surname, clients.address, clients.email, cadastre.dsg_num stand, townships.name township, cities.name city, reservations.reservationdate AS reservationdate, reservations.reservationdate+period*INTERVAL'1 day' AS expirydate) AS l)) AS properties  FROM cadastre, reservations, clients, townships, cities WHERE clients.clientid = reservations.clientid AND cadastre.standid = reservations.standid AND cadastre.townshipid =  townships.townshipid AND cities.cityid = cadastre.cityid AND (reservationdate+period*interval '0 day', reservationdate+period*interval '1 day') OVERLAPS (reservationdate+period*interval '1 day', LOCALTIMESTAMP) AND reservations.standid = $1) As f", reservedstand)
-      .then(function (data){
-        res.status(200)
-        .header('Access-Control-Allow-Origin','*')
-        .json({
-          reservedstandmap: data
-
-        })
-      })
-      .catch(function(err){
-        console.log('Geojson trouble here !!')
-        if (err) {return next()}
-      })
-
-  }
-  else
-  {
-    var reservedstand = req.params.id;
-
-    db.oneOrNone("SELECT clients.name firstname, clients.surname, clients.address, clients.email, cadastre.dsg_num stand, townships.name township, cities.name city, reservations.reservationdate AT TIME ZONE 'GMT-2' AS reservationdate, reservations.reservationdate+period*INTERVAL'1 day' AS expirydate FROM cadastre, reservations, clients, townships, cities WHERE clients.clientid = reservations.clientid AND cadastre.standid = reservations.standid AND cadastre.townshipid =  townships.townshipid AND cities.cityid = cadastre.cityid AND (reservationdate+period*interval '0 day', reservationdate+period*interval '1 day') OVERLAPS (reservationdate+period*interval '1 day', LOCALTIMESTAMP) AND reservations.standid = $1", reservedstand)
-    .then(function (data){
-      res.status(200)
-      .header('Access-Control-Allow-Origin','*')
-      .json({
-        reservedstanddata: data
-
-      })
-      console.log('Data from DB: ', data);
-    })
-    .catch(function(err){
-      console.log('problems with getting data from database!', err)
-      if (err) {return next()}
-    })
-
-  };
-
-}
-
 function getSearchReservationsData(req, res, next) {
   var datereserved = req.query.reservationdate;
   var id = req.query.clientid;
@@ -629,6 +584,23 @@ function getPaymentsSummary(req, res, next){
 
 }
 
+function postNewReservation(req, res, next) {
+  req.body.period = parseInt(req.body.period);
+  db.none('insert into reservations(reservationdate, clientid, standid, period)' +
+      'values(${reservationdate}, ${clientid}, ${standid}, ${period})',
+    req.body)
+    .then(function () {
+      res.status(200)
+        .json({
+          status: 'success',
+          message: 'Added one reservation'
+        });
+    })
+    .catch(function (err) {
+      return next(err);
+    });
+}
+
 module.exports = {
   getAllclients: getAllclients,
   getSingleAccount: getSingleAccount,
@@ -638,8 +610,8 @@ module.exports = {
   removeAccount: removeAccount,
   dbConnection: db,
   getCitiesData: getCitiesData,
-  getReservedStandDetails: getReservedStandDetails,
   getSearchReservationsData: getSearchReservationsData,
+  postNewReservation: postNewReservation,
   getCadastralData: getCadastralData,
   getAllStands: getAllStands,
   getAvailableStands: getAvailableStands,

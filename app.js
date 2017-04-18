@@ -23,6 +23,7 @@ app.set('view engine', 'ejs');
 app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
+
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
@@ -40,7 +41,7 @@ app.use(function(req, res, next) {
 var wrapped = moment(new Date());
 console.log(wrapped);
 
-// From moment to date 
+// From moment to date
 var date = wrapped.toDate();
 console.log(date);
 

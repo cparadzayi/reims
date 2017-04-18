@@ -102,7 +102,7 @@ router.get('/api/cadastre', db.getCadastralData);
 router.get('/api/stands', db.getAllStands);
 router.get('/api/stands/reservations', db.getReservedStands);
 router.get('/api/stands/reservations/search', db.getSearchReservationsData);
-router.get('/api/stands/reservations/:id', db.getReservedStandDetails);
+//router.get('/api/stands/reservations/:id', db.getReservedStandDetails);
 
 router.get('/api/stands/sold', db.getSoldStands);
 router.get('/api/stands/available', db.getAvailableStands);
@@ -112,6 +112,9 @@ router.get('/api/stands/available/:id', db.getAvailableStandDetails);
 router.get('/api/payments/history', db.getPayments);
 router.get('/api/payments/summary', db.getPaymentsSummary);
 router.get('/api/payments/history/:id', db.getClientPaymentHistory);
+
+// create reservation here
+router.post('/api/stands/reservations', db.postNewReservation);
 
 app.get('/db', function (request, response) {
   pg.connect(process.env.DATABASE_URL, function(err, client, done) {
