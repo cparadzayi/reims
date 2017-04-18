@@ -605,7 +605,7 @@ function postNewClient(req, res, next) {
   req.body.townshipid = parseInt(req.body.townshipid);
   req.body.cityid = parseInt(req.body.cityid);
  console.log(req.body);
-  db.none('insert into clients(name, surname, townshipid, cityid, clientid, address, email, password)' +
+  db.none('INSERT INTO clients(name, surname, townshipid, cityid, clientid, address, email, password)' +
       'values(${name}, ${surname}, ${townshipid}, ${cityid}, ${clientid}, ${address}, ${email}, ${password})',
     req.body)
     .then(function () {
@@ -620,9 +620,44 @@ function postNewClient(req, res, next) {
     });
 }
 
+function removeClient(req, res, next) {
+  var clientID = req.params.clientid;
+  db.result('delete from clients where clientid = $1', clientID)
+    .then(function (result) {
+      /* jshint ignore:start */
+      res.status(200)
+        .json({
+          status: 'success',
+          message: `Removed ${result.rowCount} client`
+        });
+      /* jshint ignore:end */
+    })
+    .catch(function (err) {
+      return next(err);
+    });
+}
+
+function updateClient(req, res, next) {
+  db.none('update clients set name=$1, surname=$2, townshipid=$3, cityid=$4, address=$6, email=$7, password =$8 where clientid=$5',
+    [req.body.name, req.body.surname, parseInt(req.body.townshipid), parseInt(req.body.cityid), req.params.clientid,
+      req.body.address, req.body.email, req.body.password])
+    .then(function () {
+      res.status(200)
+        .json({
+          status: 'success',
+          message: 'Updated puppy'
+        });
+    })
+    .catch(function (err) {
+      return next(err);
+    });
+}
+
 module.exports = {
   getAllclients: getAllclients,
   postNewClient: postNewClient,
+  removeClient: removeClient,
+  updateClient: updateClient,
   getSingleAccount: getSingleAccount,
   getSearchClientData: getSearchClientData,
   createAccount: createAccount,

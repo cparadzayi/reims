@@ -86,6 +86,8 @@ router.get('/pagination', function(req, res){
 //client apis
 // create reservation here
 router.post('/api/clients', db.postNewClient);
+//router.delete('/api/clients/:clientid', db.removeClient);
+router.put('/api/clients/:clientid', db.updateClient);
 
 router.get('/api/clients', db.getAllclients);
 router.get('/api/clients/search', db.getSearchClientData);
